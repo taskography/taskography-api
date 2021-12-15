@@ -2,6 +2,7 @@ import numpy as np
 
 # SceneGraphNode, Building, Room, SceneObject, Camera
 from .scenegraph import *
+from .utils import scenegraph_mst
 
 
 def loader(path):
@@ -60,5 +61,5 @@ def loader(path):
         for key in data["camera"][cam_id].keys():
             building.camera[cam_id].set_attribute(key, data["camera"][cam_id][key])
 
-    # ADD MST
+    scenegraph_mst(building)
     return building

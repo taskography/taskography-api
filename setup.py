@@ -18,7 +18,6 @@ setuptools.setup(
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
     ],
-    package_dir={"": "taskography_api"},
-    packages=setuptools.find_packages(where="taskography_api"),
+    packages=setuptools.find_packages(),
     python_requires='>=3.6',
 )

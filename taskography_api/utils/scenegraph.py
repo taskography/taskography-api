@@ -47,8 +47,6 @@ class Building(SceneGraphNode):
         self.voxel_centers = None
         # Number of voxels per axis (k x l x m)
         self.voxel_resolution = None
-        # Minimum Spanning Tree
-        self.MST = None
 
         # Instantiate other layers in the graph
         self.room = {}

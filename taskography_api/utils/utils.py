@@ -1,17 +1,17 @@
 import numpy as np
+import networkx as nx
 from collections import defaultdict
-
-from .loader import loader
 
 
 def index_building(building):
     """Index rooms and floors in the building.
     """
-    room_ids = dict()           # dict(key=room_idx, value=room_id)
-    room_loc = dict()           # dict(key=room_idx, value=room_location)
-    room_floor = dict()         # dict(key=room_idx, value=floor_idx)
-    floor_idx = dict()          # dict(key=floor_id, value=floor_idx)
-    floor_ids = dict()          # dict(key=floor_idx, value=floor_id)
+    room_ids = dict()                   # dict(key=room_idx, value=room_id)
+    room_loc = dict()                   # dict(key=room_idx, value=room_location)
+    room_floor = dict()                 # dict(key=room_idx, value=floor_idx)
+    floor_idx = dict()                  # dict(key=floor_id, value=floor_idx)
+    floor_ids = dict()                  # dict(key=floor_idx, value=floor_id)
+    floor_rooms = defaultdict(set)      # dict(key=floor_idx, value=set(room_idx))
 
     count = 0
     for idx, id in enumerate(building.room):
@@ -22,21 +22,12 @@ def index_building(building):
             floor_idx[f_id] = count
             floor_ids[count] = f_id
             count += 1
-        room_floor[id] = floor_idx[f_id]
+        room_floor[idx] = floor_idx[f_id]
 
-    floor_rooms = defaultdict(set)
-    for r_id, f_id in room_floor.items():
-        floor_rooms[f_id].add(r_id)
-    
-    return room_ids, room_loc, room_floor, floor_rooms
+    for r_idx, f_idx in room_floor.items():
+        floor_rooms[f_idx].add(r_idx)
 
-
-def compute_room_adj(room_loc):
-    num_rooms = len(room_loc)
-    adj_rooms = np.zeros((num_rooms, num_rooms), dtype=np.float)
-    
-    loc_tensor = np.array(list(room_loc.values())).shape()
-
+    return room_ids, room_loc, floor_rooms
 
 
 def scenegraph_mst(building):
@@ -46,7 +37,7 @@ def scenegraph_mst(building):
     args:
         building: a loaded <Building(SceneGraphNode)> object.
     """
-    room_ids, room_loc, room_floor, floor_rooms = index_building(building)
+    room_ids, room_loc, floor_rooms = index_building(building)
 
     # sanity check on scene graph pickle data
     if building.num_rooms is None:
@@ -54,138 +45,62 @@ def scenegraph_mst(building):
     assert(len(building.room) == building.num_rooms)
     num_floors_with_rooms = len(floor_rooms)
 
+    # room-room distance matrix
+    room_loc_np = np.array(list(room_loc.values()))                 # n x 3 
+    room_loc_np_exp = np.expand_dims(room_loc_np.copy(), axis=2)    # n x 3 x 1
+    room_dist_mat = np.linalg.norm((room_loc_np_exp.transpose(1, 0, 2) - room_loc_np_exp.transpose(1, 2, 0)), axis=0)
 
-#     # compute room-room distances
-#     adj_rooms = np.zeros((building.num_rooms, building.num_rooms))
-#     for i in range(building.num_rooms):
-#         for j in range(i+1, building.num_rooms):
-#             dist = np.linalg.norm(location[i] - location[j], 2)
-#             adj_rooms[i, j] = dist
-#             adj_rooms[j, i] = dist
+    # compute minumal spanning tree of rooms
+    room_graph = nx.Graph()
+    if num_floors_with_rooms > 1:
 
-#     # compute minimum spanning tree for all rooms
-#     room_graph = Graph(building.num_rooms)
+        # compute minimal spanning tree of floors
+        floor_graph = nx.Graph()
+        floor_adj_data = dict()
+        for floor_a, floor_a_rooms in floor_rooms.items():
+            for floor_b, floor_b_rooms in floor_rooms.items():
+                if floor_a == floor_b or (floor_a, floor_b) in floor_adj_data or (floor_b, floor_a) in floor_adj_data:
+                    continue
+                floor_a_rooms = list(floor_a_rooms)
+                floor_b_rooms = list(floor_b_rooms)
 
-#     # find average-minimum distances of rooms between floors
-#     if num_floors_with_rooms > 1:
-#         adj_floors = np.zeros((num_floors_with_rooms, num_floors_with_rooms))
-#         adj_floors_count = np.ones((num_floors_with_rooms, num_floors_with_rooms))
-        
-#         for room_id_a, floor_id_a in floor.items():
-#             for floor_id_b in floor_to_room_map:
-#                 if floor_id_a == floor_id_b:
-#                     continue
+                # floor-floor heuristic: mean of min connection between rooms in both floors 
+                n, m = len(floor_a_rooms), len(floor_b_rooms)
+                floor_a_rooms_repeat = np.repeat(np.array(floor_a_rooms, dtype=np.int), m)
+                floor_b_rooms_tile = np.tile(np.array(floor_b_rooms, dtype=np.int), n)
+                room_a_to_b_dist = room_dist_mat[floor_a_rooms_repeat, floor_b_rooms_tile].reshape(n, m)
+                floor_dist_heuristic = np.amin(room_a_to_b_dist, axis=0).mean()
+                floor_graph.add_edge(floor_a, floor_b, weight=floor_dist_heuristic)
                 
-#                 # compute minimum room-room distance between different floors
-#                 room_id_bs = np.array(list(floor_to_room_map[floor_id_b]), dtype=int)
-#                 room_id_as = np.ones_like(room_id_bs, dtype=int) * room_id_a
-#                 min_dist = adj_rooms[room_id_as, room_id_bs].min()
-                
-#                 # compute running average
-#                 n = adj_floors_count[floor_id_a, floor_id_b]
-#                 adj_floors[floor_id_a, floor_id_b] += (1/n) * (min_dist - adj_floors[floor_id_a, floor_id_b])
-#                 adj_floors_count[floor_id_a, floor_id_b] += 1
+                # store minimum connection between floors
+                room_a_tidx, room_b_tidx = np.unravel_index(np.argmin(room_a_to_b_dist), shape=room_a_to_b_dist.shape)
+                data = {
+                    "min_rooms": [floor_a_rooms[room_a_tidx], floor_b_rooms[room_b_tidx]], 
+                    "min_dist": np.amin(room_a_to_b_dist)
+                }
+                floor_adj_data[(floor_a, floor_b)] = data
+                floor_adj_data[(floor_b, floor_a)] = data
 
-#         # compute minimum spanning floor tree
-#         floor_graph = Graph(num_floors_with_rooms)
-#         for floor_id_a in range(num_floors_with_rooms):
-#             for floor_id_b in range(floor_id_a, num_floors_with_rooms):
-#                 floor_graph.addEdge(floor_id_a, floor_id_b, adj_floors[floor_id_a, floor_id_b])
-#         floor_mst = floor_graph.KruskalMST()
+        floor_mst = nx.minimum_spanning_tree(floor_graph)
+        assert (floor_mst.order() == num_floors_with_rooms)
 
-#         # add minimum edge across floors
-#         for floor_id_a, floor_id_b, w in floor_mst:
-#             room_id_as = np.array(list(floor_to_room_map[floor_id_a]), dtype=int)
-#             room_id_bs = np.array(list(floor_to_room_map[floor_id_b]), dtype=int)
-#             ones_b = np.ones_like(room_id_bs, dtype=int)
+        # add edge between closest rooms connecting floors
+        for floor_a, floor_b in floor_mst.edges():
+            data = floor_adj_data[(floor_a, floor_b)]
+            room_graph.add_edge(*data["min_rooms"], weight=data["min_dist"])
 
-#             distances = np.zeros(len(room_id_as) * len(room_id_bs))
-#             room_coords = np.empty((2, len(room_id_as) * len(room_id_bs)), dtype=int)
-#             i = 0
-#             for room_a in room_id_as:
-#                 room_idx_as = ones_b.copy() * room_a
-#                 distances[i:i+len(ones_b)] = adj_rooms[room_idx_as, room_id_bs]
-#                 room_coords[:, i:i+len(ones_b)] = np.stack((room_idx_as, room_id_bs))
-#                 i += len(ones_b)
+    # connect all rooms in each floor
+    for _, rooms in floor_rooms.items():
+        room_idx_repeat = np.repeat(np.array(list(rooms), dtype=np.int), len(rooms))
+        room_idx_tile = np.tile(np.array(list(rooms), dtype=np.int), len(rooms))
+        room_dist = room_dist_mat[room_idx_repeat, room_idx_tile]
+        room_graph.add_weighted_edges_from(list(zip(room_idx_repeat, room_idx_tile, room_dist)))
 
-#             min_edge = np.min(distances)
-#             min_room_a, min_room_b = room_coords[:, np.argmin(distances)]
-#             room_graph.addEdge(min_room_a, min_room_b, min_edge)
-    
-#     for floor_id in floor_to_room_map:
-#         room_ids = np.array(list(floor_to_room_map[floor_id]), dtype=int)
-#         for i, room_i in enumerate(room_ids):
-#             for j, room_j in enumerate(room_ids, i+1):
-#                 room_graph.addEdge(room_i, room_j, adj_rooms[room_i, room_j])
-    
-#     # compute room MST
-#     room_mst = room_graph.KruskalMST()
-#     building.MST = room_mst
-#     connected_rooms = set()
-#     for i, j, w in room_mst:
-#         connected_rooms.add(room_map[i])
-#         connected_rooms.add(room_map[j])
-#         building.room[room_map[i]].connected_rooms.add(room_map[j])
-#         building.room[room_map[j]].connected_rooms.add(room_map[i])
-    
-#     assert(len(connected_rooms) == building.num_rooms)
-#     assert(len(building.MST) == building.num_rooms - 1)
-
-
-# class Graph:
- 
-#     def __init__(self, vertices):
-#         self.V = vertices  
-#         self.graph = [] 
- 
-#     def addEdge(self, u, v, w):
-#         self.graph.append([u, v, w])
-
-#     def find(self, parent, i):
-#         if parent[i] == i:
-#             return i
-#         return self.find(parent, parent[i])
-
-#     def union(self, parent, rank, x, y):
-#         xroot = self.find(parent, x)
-#         yroot = self.find(parent, y)
- 
-#         if rank[xroot] < rank[yroot]:
-#             parent[xroot] = yroot
-#         elif rank[xroot] > rank[yroot]:
-#             parent[yroot] = xroot
-#         else:
-#             parent[yroot] = xroot
-#             rank[xroot] += 1
-
-#     def KruskalMST(self):
-#         result = []  
-#         i = 0
-#         e = 0
-
-#         self.graph = sorted(self.graph, key=lambda item: item[2])
-#         parent = []
-#         rank = []
- 
-#         # Create V subsets with single elements
-#         for node in range(self.V):
-#             parent.append(node)
-#             rank.append(0)
- 
-#         # Number of edges to be taken is equal to V-1
-#         while e < self.V - 1:
-#             u, v, w = self.graph[i]
-#             i = i + 1
-#             x = self.find(parent, u)
-#             y = self.find(parent, v)
- 
-#             if x != y:
-#                 e = e + 1
-#                 result.append([u, v, w])
-#                 self.union(parent, rank, x, y)
- 
-#         minimumCost = 0
-#         for u, v, weight in result:
-#             minimumCost += weight
-
-#         return result
+    # add room adjacency list to scene graph
+    room_mst = nx.minimum_spanning_tree(room_graph)
+    assert(nx.number_connected_components(room_mst) == 1), "Minimum spanning tree is not complete"
+    assert (building.num_rooms == room_mst.order()), "Missing rooms in computed minimum spanning tree"
+    assert (building.num_rooms-1 == room_mst.size()), "Missing edges in the computed minimum spanning tree"
+    for room_a_idx, room_b_idx in room_mst.edges():
+        building.room[room_ids[room_a_idx]].connected_rooms.add(room_ids[room_b_idx])
+        building.room[room_ids[room_b_idx]].connected_rooms.add(room_ids[room_a_idx])
