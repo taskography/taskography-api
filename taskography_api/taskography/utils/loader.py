@@ -2,32 +2,67 @@ import numpy as np
 import networkx as nx
 from collections import defaultdict
 
+from .scenegraph import *
 
-def index_building(building):
-    """Index rooms and floors in the building.
+
+def loader(path):
+    """Load a 3D scene graph.
+    args:
+        path: path to an iGibson scene graph pickle file.
     """
-    room_ids = dict()                   # dict(key=room_idx, value=room_id)
-    room_loc = dict()                   # dict(key=room_idx, value=room_location)
-    room_floor = dict()                 # dict(key=room_idx, value=floor_idx)
-    floor_idx = dict()                  # dict(key=floor_id, value=floor_idx)
-    floor_ids = dict()                  # dict(key=floor_idx, value=floor_id)
-    floor_rooms = defaultdict(set)      # dict(key=floor_idx, value=set(room_idx))
+    data = np.load(path, allow_pickle=True)["output"].item()
+    building = Building()
 
-    count = 0
-    for idx, id in enumerate(building.room):
-        room_ids[idx] = id
-        room_loc[idx] = building.room[id].location
-        f_id = building.room[id].floor_number
-        if f_id not in floor_idx:
-            floor_idx[f_id] = count
-            floor_ids[count] = f_id
-            count += 1
-        room_floor[idx] = floor_idx[f_id]
+    # Set building attributes
+    for key in data["building"].keys():
+        if key in [
+            "object_inst_segmentation",
+            "room_inst_segmentation",
+            "object_voxel_occupancy",
+            "room_voxel_occupancy",
+        ]:
+            continue
+        building.set_attribute(key, data["building"][key])
+    res = building.voxel_resolution
+    voxel_centers = np.reshape(building.voxel_centers, (res[0], res[1], res[2], 3))
+    building.set_attribute("voxel_centers", voxel_centers)
 
-    for r_idx, f_idx in room_floor.items():
-        floor_rooms[f_idx].add(r_idx)
+    # Set room attributes
+    unique_rooms = np.unique(data["building"]["room_inst_segmentation"])
+    for room_id in unique_rooms:
+        if room_id == 0:
+            continue
+        building.room[room_id] = Room()
+        room_faces = np.where(data["building"]["room_inst_segmentation"] == room_id)[0]
+        building.room[room_id].set_attribute("inst_segmentation", room_faces)
+        room_voxels = np.where(data["building"]["room_voxel_occupancy"] == room_id)[0]
+        building.room[room_id].set_attribute("voxel_occupancy", room_voxels)
+        for key in data["room"][room_id].keys():
+            building.room[room_id].set_attribute(key, data["room"][room_id][key])
+    
+    # Set object attributes
+    unique_objects = np.unique(data["building"]["object_inst_segmentation"])
+    for object_id in unique_objects:
+        if object_id == 0:
+            continue
+        building.object[object_id] = SceneObject()
+        object_faces = np.where(data["building"]["object_inst_segmentation"] == object_id)[0]
+        building.object[object_id].set_attribute("inst_segmentation", object_faces)
+        object_voxels = np.where(data["building"]["object_voxel_occupancy"] == object_id)[0]
+        building.object[object_id].set_attribute("voxel_occupancy", object_voxels)
+        for key in data["object"][object_id].keys():
+            building.object[object_id].set_attribute(key, data["object"][object_id][key])
+    
+    # Set camera attributes
+    for cam_id in data["camera"].keys():
+        if cam_id == 0:
+            continue
+        building.camera[cam_id] = Camera()
+        for key in data["camera"][cam_id].keys():
+            building.camera[cam_id].set_attribute(key, data["camera"][cam_id][key])
 
-    return room_ids, room_loc, floor_rooms
+    scenegraph_mst(building)
+    return building
 
 
 def scenegraph_mst(building):
@@ -104,3 +139,30 @@ def scenegraph_mst(building):
     for room_a_idx, room_b_idx in room_mst.edges():
         building.room[room_ids[room_a_idx]].connected_rooms.add(room_ids[room_b_idx])
         building.room[room_ids[room_b_idx]].connected_rooms.add(room_ids[room_a_idx])
+
+
+def index_building(building):
+    """Index rooms and floors in the building.
+    """
+    room_ids = dict()                   # dict(key=room_idx, value=room_id)
+    room_loc = dict()                   # dict(key=room_idx, value=room_location)
+    room_floor = dict()                 # dict(key=room_idx, value=floor_idx)
+    floor_idx = dict()                  # dict(key=floor_id, value=floor_idx)
+    floor_ids = dict()                  # dict(key=floor_idx, value=floor_id)
+    floor_rooms = defaultdict(set)      # dict(key=floor_idx, value=set(room_idx))
+
+    count = 0
+    for idx, id in enumerate(building.room):
+        room_ids[idx] = id
+        room_loc[idx] = building.room[id].location
+        f_id = building.room[id].floor_number
+        if f_id not in floor_idx:
+            floor_idx[f_id] = count
+            floor_ids[count] = f_id
+            count += 1
+        room_floor[idx] = floor_idx[f_id]
+
+    for r_idx, f_idx in room_floor.items():
+        floor_rooms[f_idx].add(r_idx)
+
+    return room_ids, room_loc, floor_rooms

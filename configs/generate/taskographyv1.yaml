@@ -1,0 +1,25 @@
+seed: 0
+
+sampler: flat_rearrangement
+sampler_kwargs:
+  domain_filepath: domains/taskographyv1.pddl
+  scene_graph_filepath: null
+  complexity: 1
+  bagslots: null
+
+dataset: True
+dataset_kwargs:
+  data_dir: /Users/christopheragia/Projects/data/3dscenegraph
+  split: tiny
+  problem_dir: /Users/christopheragia/Projects/stanford/taskography/pddlgym/pddlgym/pddl
+  save_samplers: True
+  sampler_dir: datasets/samplers/flat_rearrangement
+  train_scenes: 10
+  samples_per_train_scene: 4
+  samples_per_test_scene: 5
+
+# plan_dataset: True
+# plan_dataset_kwargs:
+#   planner: FD-lama-first
+#   states: True
+#   actions: True

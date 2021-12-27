@@ -1,4 +1,4 @@
-;; Specification of Lifted Hierarchical Knapsack Taskography
+;; Specification of the Hierarchical Knapsack Taskography Lifted Courier(n, k) Domain
 
 (define (domain taskographyv5)
  (:requirements

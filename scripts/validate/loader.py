@@ -1,7 +1,7 @@
 import os
 import argparse
 
-from taskography_api.utils.loader import loader
+from taskography_api.taskography.utils.loader import loader
 
 
 parser = argparse.ArgumentParser()
