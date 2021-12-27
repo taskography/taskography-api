@@ -86,11 +86,12 @@ class TaskSamplerV1(ProblemSamplerBase):
             valid_goal = all([i_id not in self.receptacle_to_object_map[r_id] \
                 for i_id, r_id in zip(i_ids, r_ids)])
             valid = valid or valid_goal
-        
+        ir_ids = sorted(list(zip(i_ids, r_ids)))
+
         task_repr = {
             "a_lid": random.sample(self._sorted_location_ids, k=1)[0],
-            "i_ids": sorted(i_ids),
-            "r_ids": sorted(r_ids)
+            "i_ids": [id[0] for id in ir_ids],
+            "r_ids": [id[1] for id in ir_ids]
         }
         return task_repr
 
@@ -114,7 +115,7 @@ class TaskSamplerV1(ProblemSamplerBase):
                 goals.append(in_receptacle(
                     emap[self.object_names[i_id]], 
                     emap[self.receptacle_names[r_id]]
-                    ))
+                ))
             goals = LiteralConjunction(goals)
 
             task = {
