@@ -1,3 +1,6 @@
+import os
+import os.path as osp
+
 from .constants import DOMAIN_ALIAS
 
 
@@ -44,15 +47,26 @@ def convert_domain_name(
     assert (domain_version in ["v1", "v2", "v4"] and bagslots is None \
         or domain_version in ["v3", "v5"] and bagslots is not None)
     
-    domain_name = ''.join(map(str.capitalize, DOMAIN_ALIAS[domain_name].split('_')))
-    domain_name += split.capitalize()
+    # domain config
+    domain_name = DOMAIN_ALIAS[domain_name]
+    domain_name += f"_{split}"
+    # sampler config
     if domain_version in ["v3", "v5"]:
         assert (bagslots is not None)
-        domain_name += f"N{bagslots}"
-    domain_name += f"K{complexity}"
-    domain_name += f"TrSc{train_scenes}TrSa{samples_per_train_scene}TeSa{samples_per_test_scene}"
-    domain_name += f"Seed{seed}"
-    return domain_name
+        domain_name += f"_n{bagslots}"
+    domain_name += f"_k{complexity}"
+    # dataset config
+    domain_name += f"_trsc{train_scenes}"
+    domain_name += f"_trsa{samples_per_train_scene}"
+    domain_name += f"_tesa{samples_per_test_scene}"
+    domain_name += f"_seed{seed}"
+
+    names = {
+        "domain_name": domain_name,
+        "gym_name": domain_name.capitalize(),
+        "gym_name_test": domain_name.capitalize() + "Test"
+    }
+    return names
 
 
 def write_domain_file(pddlgym_domain, domain_filepath, domain_name=None):
@@ -71,4 +85,41 @@ def write_domain_file(pddlgym_domain, domain_filepath, domain_name=None):
         lines = fh.readlines()
         lines = [l for l in lines if l.strip("\n").strip() != "(= ?v0 ?v1)"]
     with open(domain_filepath, "wt") as fh:    
+        fh.writelines(lines)
+
+
+def register_pddlgym_domain(problem_dir, domain_name):
+    """Add new domain to the list of environments to be registered by PDDLGym.
+    
+    args:
+        problem_dir: path to pddlgym/pddlgym/pddl directory
+        domain_name: name of the domain
+    """
+    register_filepath = osp.realpath(osp.join(osp.dirname(problem_dir), "__init__.py"))
+    with open(register_filepath, "rt") as fh:
+        lines = fh.readlines()
+    
+    idx = -1
+    for i, line in enumerate(lines):
+        if line.strip("\n").strip() == "]:":
+            idx = i
+    assert idx != -1, "Could not find appropriate location to insert domain declaration"
+    decl_str = '\t\t(\n'
+    decl_str += f'\t\t\t"{domain_name}",\n'
+    decl_str += '\t\t\t{{\n'
+    decl_str += '\t\t\t\t"operators_as_actions": False,\n'
+    decl_str += '\t\t\t\t"dynamic_action_space": True\n'
+    decl_str += '\t\t\t}}\n'
+    decl_str += '\t\t)\n'
+    lines.insert(idx, decl_str)
+    
+    # extend list
+    prev = lines[idx-1].strip("\n")
+    assert prev[-1] in [",", ")"]
+    if prev[-1] != ",":
+        prev += ","
+    prev += "\n"
+    lines[idx-1] = prev
+    
+    with open(register_filepath, "wt") as fh:
         fh.writelines(lines)
