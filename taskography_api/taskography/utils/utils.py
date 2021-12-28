@@ -1,4 +1,3 @@
-import os
 import os.path as osp
 
 from .constants import DOMAIN_ALIAS
@@ -30,6 +29,10 @@ def location_to_str_name(room_data, place_id):
     cx = f"neg{-cx}" if cx < 0 else f"pos{cx}"
     cy = f"neg{-cy}" if cy < 0 else f"pos{cy}"
     return f"location_X{cx}_Y{cy}_place{place_id}_room{int(room_id)}_floor{floor_num}"
+
+
+def scene_graph_name(scene_graph_filepath):
+    return scene_graph_filepath.split('.')[0].split('_')[-1].lower()
 
 
 def convert_domain_name(

@@ -1,4 +1,3 @@
-import os
 import yaml
 import random
 import numpy as np
@@ -6,7 +5,6 @@ import argparse
 
 from taskography_api.taskography.samplers import get_task_sampler
 from taskography_api.taskography.datasets.pddlgym_dataset import PDDLGymDataset
-from taskography_api.taskography.datasets.trajectory_dataset import TrajectoryDataset
 
 
 def generate(config):
@@ -14,12 +12,7 @@ def generate(config):
     """
     pddlgym_dataset = PDDLGymDataset(**config["dataset_kwargs"], seed=config["seed"])
     pddlgym_dataset.generate(get_task_sampler(config["sampler"]), config["sampler_kwargs"])
-    
-    # create TrajectoryDataset
-    # create gym environment for each problem
-    # solve with specified planner
-    # pickle states and actions into a dataset
-    
+
 
 if __name__ == '__main__':
 

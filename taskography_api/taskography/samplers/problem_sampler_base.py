@@ -5,6 +5,7 @@ from abc import (ABC, abstractmethod)
 
 from .task_sampler_base import TaskSamplerBase
 from taskography_api.taskography.utils.loader import loader
+from taskography_api.taskography.utils.utils import scene_graph_name
 from pddlgym.parser import (PDDLDomainParser, PDDLProblemParser)
 
 
@@ -45,18 +46,18 @@ class ProblemSamplerBase(ABC, TaskSamplerBase):
         self.create_predicates()
 
         # Labelling attributes
-        self._model_name = scene_graph_filepath.split('.')[0].split('_')[-1]
-        self._problem_prefix = self._model_name + self.domain.domain_name.title()
+        self._model_name = scene_graph_name(scene_graph_filepath)
+        self._problem_prefix = self._model_name + self.domain.domain_name
         self._sampler_name = self.name(self._model_name, self.complexity, self.bagslots)
 
     @staticmethod
-    def name(scene_graph_name=None, complexity=1, bagslots=None):
+    def name(scene_graph_name, complexity=1, bagslots=None):
         """Problem sampler name.
         """
         sampler_name = scene_graph_name
         if bagslots is not None:
-            sampler_name += f"N{bagslots}"
-        sampler_name += f"K{complexity}"
+            sampler_name += f"_n{bagslots}"
+        sampler_name += f"_k{complexity}"
         return sampler_name
 
     @abstractmethod
@@ -186,4 +187,13 @@ class ProblemSamplerBase(ABC, TaskSamplerBase):
         """Load a saved pickle instance of the sampler.
         """
         with open(filepath, "rb") as fh:
+            return pickle.load(fh)
+
+    @classmethod
+    def load_from_name(cls, scene_graph_filepath, complexity, bagslots=None):
+        """Load a saved pickle instance of the sampler.
+        """
+        sampler_name = cls.name(scene_graph_name(scene_graph_filepath), complexity, bagslots)
+        default_dir = "datasets/samplers/"
+        with open(os.path.join(default_dir, sampler_name), "rb") as fh:
             return pickle.load(fh)
