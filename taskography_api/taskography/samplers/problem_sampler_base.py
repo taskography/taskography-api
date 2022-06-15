@@ -182,7 +182,6 @@ class ProblemSamplerBase(ABC, TaskSamplerBase):
     def load_from_name(cls, scene_graph_filepath, complexity, bagslots=None, dir="datasets/samplers"):
         """Load a saved pickle instance of the sampler.
         """
-        print("IN HERE")
         _sampler_name = sampler_name(scene_graph_filepath, complexity, bagslots) + ".pkl"
         with open(os.path.join(dir, _sampler_name), "rb") as fh:
             sampler = pickle.load(fh)
