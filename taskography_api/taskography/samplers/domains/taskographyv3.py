@@ -9,6 +9,7 @@ class TaskSamplerV3(TaskSamplerV2):
         """PDDL problem sampler for the Courier(n, k) task. 
         Corresponding domain specification: domains/taskographyv3.pddl.
         """
+        assert bagslots is not None, "Courier(n, k) domains use bagslots."
         super().__init__(domain_filepath, scene_graph_filepath, complexity=complexity, bagslots=bagslots)
 
     def create_entities(self):

@@ -14,6 +14,7 @@ class TaskSamplerV4(TaskSamplerV2):
         Corresponding domain specification: domains/taskographyv4.pddl.
         """
         super().__init__(domain_filepath, scene_graph_filepath, complexity=complexity, bagslots=bagslots)
+        assert bagslots is None, "Lifted Rearrangement(k) domains does not use bagslots."
         lifted_class_array = self.lifted_class_matrix.copy().reshape(-1)
         mask = lifted_class_array > 0
         self._lifted_class_indices = np.arange(len(lifted_class_array))[mask]

@@ -11,6 +11,7 @@ class TaskSamplerV1(ProblemSamplerBase):
         Corresponding domain specification: domains/taskographyv1.pddl.
         """
         super().__init__(domain_filepath, scene_graph_filepath, complexity=complexity, bagslots=bagslots)
+        assert bagslots is None, "Flat Rearrangement(k) domains does not use bagslots."
         self._sorted_item_ids = sorted(list(self.objects["all"]))
         self._sorted_receptacle_ids = sorted(list(self.receptacles["all"]))
         self._sorted_location_ids = sorted(list(set(self.location_names.keys()) - {'unique', 'places'}))

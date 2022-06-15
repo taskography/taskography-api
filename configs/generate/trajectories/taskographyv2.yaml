@@ -1,0 +1,6 @@
+plan_dataset: True
+plan_dataset_kwargs:
+  planner: FD-lama-first
+  trajectory_dir: datasets/trajectories/
+  states: True
+  actions: True

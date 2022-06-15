@@ -17,9 +17,3 @@ dataset_kwargs:
   train_scenes: 10
   samples_per_train_scene: 4
   samples_per_test_scene: 5
-
-# plan_dataset: True
-# plan_dataset_kwargs:
-#   planner: FD-lama-first
-#   states: True
-#   actions: True

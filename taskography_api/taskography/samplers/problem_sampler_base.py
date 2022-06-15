@@ -5,7 +5,7 @@ from abc import (ABC, abstractmethod)
 
 from .task_sampler_base import TaskSamplerBase
 from taskography_api.taskography.utils.loader import loader
-from taskography_api.taskography.utils.utils import scene_graph_name
+from taskography_api.taskography.utils.utils import scene_graph_name, sampler_name
 from pddlgym.parser import (PDDLDomainParser, PDDLProblemParser)
 
 
@@ -48,17 +48,7 @@ class ProblemSamplerBase(ABC, TaskSamplerBase):
         # Labelling attributes
         self._model_name = scene_graph_name(scene_graph_filepath)
         self._problem_prefix = self._model_name + self.domain.domain_name
-        self._sampler_name = self.name(self._model_name, self.complexity, self.bagslots)
-
-    @staticmethod
-    def name(scene_graph_name, complexity=1, bagslots=None):
-        """Problem sampler name.
-        """
-        sampler_name = scene_graph_name
-        if bagslots is not None:
-            sampler_name += f"_n{bagslots}"
-        sampler_name += f"_k{complexity}"
-        return sampler_name
+        self._sampler_name = sampler_name(scene_graph_filepath, self.complexity, self.bagslots)
 
     @abstractmethod
     def create_entities(self):
@@ -119,13 +109,13 @@ class ProblemSamplerBase(ABC, TaskSamplerBase):
         # All objects / receptacles must have a designated parent room
         return self.valid_scene
 
-    def reset(self, complexity=1, bagslots=None):
-        """Reset state of the sampler and optionally alter the complexity of the tasks, 
-        perhaps to be used in a curriculum train scheme.
-        """
-        self.tasks = set()
-        self.complexity = complexity
-        self.bagslots = bagslots
+    # def reset(self, complexity=1, bagslots=None):
+    #     """Reset state of the sampler and optionally alter the complexity of the tasks, 
+    #     perhaps to be used in a curriculum train scheme.
+    #     """
+    #     self.tasks = set()
+    #     self.complexity = complexity
+    #     self.bagslots = bagslots
 
     def write(self, 
               objects,
@@ -151,7 +141,7 @@ class ProblemSamplerBase(ABC, TaskSamplerBase):
         returns:
             problem_filepath: full path to the written problem file
         """
-        assert not (problem_dir == '') and problem_filepath is None
+        assert problem_dir != '' and problem_filepath is None
         problem_filepath = os.path.join(problem_dir, f"problem{ProblemSamplerBase._num_written}.pddl") \
             if problem_filepath is None else problem_filepath
         problem_name = f"{self._problem_prefix}Problem{ProblemSamplerBase._num_written}" \
@@ -172,7 +162,7 @@ class ProblemSamplerBase(ABC, TaskSamplerBase):
         ProblemSamplerBase._num_written += 1  
         return os.path.realpath(problem_filepath)
 
-    def save(self, dir):
+    def save(self, dir="datasets/samplers"):
         """Save an instance of the sampler as a pickle file.
         """
         if not os.path.exists(dir): os.makedirs(dir)
@@ -190,10 +180,10 @@ class ProblemSamplerBase(ABC, TaskSamplerBase):
             return pickle.load(fh)
 
     @classmethod
-    def load_from_name(cls, scene_graph_filepath, complexity, bagslots=None):
+    def load_from_name(cls, scene_graph_filepath, complexity, bagslots=None, dir="datasets/samplers"):
         """Load a saved pickle instance of the sampler.
         """
-        sampler_name = cls.name(scene_graph_name(scene_graph_filepath), complexity, bagslots)
-        default_dir = "datasets/samplers/"
-        with open(os.path.join(default_dir, sampler_name), "rb") as fh:
-            return pickle.load(fh)
+        _sampler_name = sampler_name(scene_graph_filepath, complexity, bagslots) + ".pkl"
+        with open(os.path.join(dir, _sampler_name), "rb") as fh:
+            sampler = pickle.load(fh)
+        return sampler

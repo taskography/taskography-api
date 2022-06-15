@@ -10,6 +10,7 @@ class TaskSamplerV5(TaskSamplerV4):
         """PDDL problem sampler for the Lifted Courier(n, k) task. 
         Corresponding domain specification: domains/taskographyv5.pddl.
         """
+        assert bagslots is not None, "Lifted Courier(n, k) domains use bagslots."
         super().__init__(domain_filepath, scene_graph_filepath, complexity=complexity, bagslots=bagslots)
 
     def create_entities(self):

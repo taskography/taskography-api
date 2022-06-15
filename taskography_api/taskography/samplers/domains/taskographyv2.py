@@ -11,6 +11,7 @@ class TaskSamplerV2(TaskSamplerV1):
         """PDDL problem sampler for the Rearrangement(k) task. 
         Corresponding domain specification: domains/taskographyv2.pddl.
         """
+        assert bagslots is None, "Rearrangement(k) domains does not use bagslots."
         super().__init__(domain_filepath, scene_graph_filepath, complexity=complexity, bagslots=bagslots)
         self._sorted_room_ids = sorted(list(self.room_names.keys()))
 
