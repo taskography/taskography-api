@@ -8,7 +8,7 @@ setuptools.setup(
     name='taskography_api',
     version='0.0.1',    
     author='Christopher Agia, Krishna Murthy Jatavallabhula, Mohamed Khodeir',
-    author_email='cagia@stanford.edu',
+    author_email='cagia@cs.stanford.edu',
     description='A simple API generating symbolic planning tasks in 3D scene graphs',
     long_description=long_description,
     long_description_content_type="text/markdown",

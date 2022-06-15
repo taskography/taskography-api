@@ -1,6 +1,33 @@
 import os.path as osp
 
-from .constants import DOMAIN_ALIAS
+from .constants import (DOMAIN_ALIAS, DOMAIN_BAGSLOTS)
+
+
+REQUIRED_BASE_KEYS = [
+    "domain_type",
+    "split",
+    "bagslots",
+    "complexity",
+    "train_scenes",
+    "samples_per_train_scene",
+    "samples_per_test_scene",
+    "seed"
+]
+
+
+_KEY_MAP = {
+    "domain_type": "",
+    "split": "split",
+    "bagslots": "n",
+    "complexity": "k",
+    "train_scenes": "trsc",
+    "samples_per_train_scene": "trsa",
+    "samples_per_test_scene": "tesa",
+    "seed": "seed"
+}
+
+
+_KEY_MAP_INV = {v: k for k, v in _KEY_MAP.items()}
 
 
 def room_to_str_name(room_inst):
@@ -29,47 +56,6 @@ def location_to_str_name(room_data, place_id):
     cx = f"neg{-cx}" if cx < 0 else f"pos{cx}"
     cy = f"neg{-cy}" if cy < 0 else f"pos{cy}"
     return f"location_X{cx}_Y{cy}_place{place_id}_room{int(room_id)}_floor{floor_num}"
-
-
-def scene_graph_name(scene_graph_filepath):
-    return scene_graph_filepath.split('.')[0].split('_')[-1].lower()
-
-
-def convert_domain_name(
-        domain_name, 
-        split, 
-        complexity, 
-        bagslots,
-        train_scenes,
-        samples_per_train_scene, 
-        samples_per_test_scene,
-        seed
-    ):
-
-    domain_version = domain_name.replace("taskography", "")
-    assert (domain_version in ["v1", "v2", "v4"] and bagslots is None \
-        or domain_version in ["v3", "v5"] and bagslots is not None)
-    
-    # domain config
-    domain_name = DOMAIN_ALIAS[domain_name]
-    domain_name += f"_{split}"
-    # sampler config
-    if domain_version in ["v3", "v5"]:
-        assert (bagslots is not None)
-        domain_name += f"_n{bagslots}"
-    domain_name += f"_k{complexity}"
-    # dataset config
-    domain_name += f"_trsc{train_scenes}"
-    domain_name += f"_trsa{samples_per_train_scene}"
-    domain_name += f"_tesa{samples_per_test_scene}"
-    domain_name += f"_seed{seed}"
-
-    names = {
-        "domain_name": domain_name,
-        "gym_name": domain_name.capitalize(),
-        "gym_name_test": domain_name.capitalize() + "Test"
-    }
-    return names
 
 
 def write_domain_file(pddlgym_domain, domain_filepath, domain_name=None):
@@ -106,6 +92,7 @@ def register_pddlgym_domain(problem_dir, domain_name):
     for i, line in enumerate(lines):
         if line.strip("\n").strip() == "]:":
             idx = i
+            break
     assert idx != -1, "Could not find appropriate location to insert domain declaration"
     decl_str = '\t\t(\n'
     decl_str += f'\t\t\t"{domain_name}",\n'
@@ -126,3 +113,61 @@ def register_pddlgym_domain(problem_dir, domain_name):
     
     with open(register_filepath, "wt") as fh:
         fh.writelines(lines)
+
+
+def config_to_domain_name(**kwargs):
+    """A convention for naming domains and obtaining their respective PDDLGym registry
+    from a set of input keyword arguments.
+    """
+    # Ensure base keys provided
+    for k in REQUIRED_BASE_KEYS:
+        assert k in kwargs, f"Missing keyword argument {k} required to name the domain."
+    
+    # Construct name
+    domain_name = kwargs["domain_type"]
+    for k in REQUIRED_BASE_KEYS[1:]:
+        k, v = _KEY_MAP[k], kwargs[k]
+        if k == "n" and v == None: v = 0
+        domain_name += f"_{k}_{v}"
+    
+    return domain_name.lower()
+
+
+def domain_to_pddlgym_name(domain_name, test=False):
+    """Domain name as registered by PDDLGym.
+    """
+    pddlgym_name = domain_name.capitalize()
+    if test: pddlgym_name += "Test"
+    return f"PDDLEnv{pddlgym_name}-v0"
+
+
+def domain_name_to_config(domain_name):
+    """Base config from the provided domain name.
+    """
+    params = domain_name.split("_")
+    split_idx = params.index("split")
+    
+    # Domain type and split
+    config = dict()
+    config["domain_type"] = "_".join([p for p in params[:split_idx]])
+    config["split"] = params[split_idx + 1]
+    
+    # Remaining keys
+    prev_key = None
+    for p in params[split_idx + 2:]:
+        if p in _KEY_MAP_INV: prev_key = _KEY_MAP_INV[p]
+        else: config[prev_key] = int(p)
+
+    assert all(k in config for k in REQUIRED_BASE_KEYS)
+    return config
+
+
+def scene_graph_name(scene_graph_filepath):
+    return scene_graph_filepath.split('.')[0].split('_')[-1].lower()
+
+
+def sampler_name(scene_graph_filepath, complexity, bagslots=None):
+    sampler_name = scene_graph_name(scene_graph_filepath)
+    bagslots = 0 if bagslots is None else bagslots
+    sampler_name += f"_n{bagslots}_k{complexity}"
+    return sampler_name

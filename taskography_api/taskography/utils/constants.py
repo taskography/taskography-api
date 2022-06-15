@@ -1,3 +1,37 @@
+# general constants
+DOMAIN_ALIAS = {
+    "taskographyv1": "flat_rearrangement",
+    "taskographyv2": "rearrangement",
+    "taskographyv3": "courier",
+    "taskographyv4": "lifted_rearrangement",
+    "taskographyv5": "lifted_courier",
+}
+
+
+DOMAIN_BAGSLOTS = {
+    "flat_rearrangement": False,
+    "rearrangement": False,
+    "courier": True,
+    "lifted_rearrangement": False,
+    "lifted_courier": True
+}
+
+
+OFFICIAL_SPLITS = {
+    "tiny": "tiny/verified_graph",
+    "medium": "medium/automated_graph"
+}
+
+
+SPLIT_SCENES = {
+    "tiny": 35,
+    "tiny/verified_graph": 35,
+    "medium": 105,
+    "medium/automated_graph": 105
+}
+
+
+# scene entities
 ROOMS = {
     'bathroom',
     'bedroom',
@@ -267,13 +301,4 @@ TEXTURES = {
         'woven',
         'wrinkled',
     }
-}
-
-
-DOMAIN_ALIAS = {
-    "taskographyv1": "flat_rearrangement",
-    "taskographyv2": "rearrangement",
-    "taskographyv3": "courier",
-    "taskographyv4": "lifted_rearrangement",
-    "taskographyv5": "lifted_courier",
 }

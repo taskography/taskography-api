@@ -167,10 +167,9 @@ class ProblemSamplerBase(ABC, TaskSamplerBase):
         """
         if not os.path.exists(dir): os.makedirs(dir)
         filename = os.path.join(dir, self._sampler_name + ".pkl")
-        if not os.path.exists(filename): 
-            fh = open(filename, "wb")
+        assert not os.path.exists(filename), f"Sampler already exists at {filename}"
+        with open(filename, "wb") as fh:
             pickle.dump(self, fh)
-            fh.close()
         
     @classmethod
     def load(cls, filepath):
@@ -183,6 +182,7 @@ class ProblemSamplerBase(ABC, TaskSamplerBase):
     def load_from_name(cls, scene_graph_filepath, complexity, bagslots=None, dir="datasets/samplers"):
         """Load a saved pickle instance of the sampler.
         """
+        print("IN HERE")
         _sampler_name = sampler_name(scene_graph_filepath, complexity, bagslots) + ".pkl"
         with open(os.path.join(dir, _sampler_name), "rb") as fh:
             sampler = pickle.load(fh)
