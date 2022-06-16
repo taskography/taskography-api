@@ -7,7 +7,7 @@ sampler_kwargs:
   complexity: 3
   bagslots: 3
 
-dataset: True
+dataset: PDDLGymDataset
 dataset_kwargs:
   data_dir: /Users/christopheragia/Projects/data/3dscenegraph
   split: tiny

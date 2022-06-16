@@ -1,0 +1,6 @@
+dataset: TrajectoryGymDataset
+dataset_kwargs:
+  env: <enter env name>
+  test: True
+  planner: FD-lama-first
+  trajectory_dir: datasets/trajectories/
