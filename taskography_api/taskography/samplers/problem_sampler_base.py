@@ -5,7 +5,8 @@ from abc import (ABC, abstractmethod)
 
 from .task_sampler_base import TaskSamplerBase
 from taskography_api.taskography.utils.loader import loader
-from taskography_api.taskography.utils.utils import scene_graph_name, sampler_name
+from taskography_api.taskography.utils.utils import \
+    scene_graph_name, sampler_name, domain_name_to_config
 from pddlgym.parser import (PDDLDomainParser, PDDLProblemParser)
 
 
@@ -34,6 +35,7 @@ class ProblemSamplerBase(ABC, TaskSamplerBase):
 
         TaskSamplerBase.__init__(self, loader(scene_graph_filepath))
         self.domain = PDDLDomainParser(domain_filepath, expect_action_preds=False, operators_as_actions=False)
+        self.domain_type = domain_name_to_config(self.domain.domain_name)["domain_type"]
         self.complexity = complexity
         self.bagslots = bagslots
         
@@ -162,9 +164,11 @@ class ProblemSamplerBase(ABC, TaskSamplerBase):
         ProblemSamplerBase._num_written += 1  
         return os.path.realpath(problem_filepath)
 
-    def save(self, dir="datasets/samplers"):
+    def save(self, dir=None):
         """Save an instance of the sampler as a pickle file.
         """
+        dir = os.path.join("datasets/samplers", self.domain_type) \
+            if dir is None else dir
         if not os.path.exists(dir): os.makedirs(dir)
         filename = os.path.join(dir, self._sampler_name + ".pkl")
         assert not os.path.exists(filename), f"Sampler already exists at {filename}"
@@ -179,9 +183,9 @@ class ProblemSamplerBase(ABC, TaskSamplerBase):
             return pickle.load(fh)
 
     @classmethod
-    def load_from_name(cls, scene_graph_filepath, complexity, bagslots=None, dir="datasets/samplers"):
+    def load_from_name(cls, scene_graph_filepath, complexity, dir, bagslots=None):
         """Load a saved pickle instance of the sampler.
-        """
+        """            
         _sampler_name = sampler_name(scene_graph_filepath, complexity, bagslots) + ".pkl"
         with open(os.path.join(dir, _sampler_name), "rb") as fh:
             sampler = pickle.load(fh)

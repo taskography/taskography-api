@@ -96,10 +96,10 @@ def register_pddlgym_domain(problem_dir, domain_name):
     assert idx != -1, "Could not find appropriate location to insert domain declaration"
     decl_str = '\t\t(\n'
     decl_str += f'\t\t\t"{domain_name}",\n'
-    decl_str += '\t\t\t{{\n'
-    decl_str += '\t\t\t\t"operators_as_actions": False,\n'
+    decl_str += '\t\t\t{\n'
+    decl_str += '\t\t\t\t"operators_as_actions": True,\n'
     decl_str += '\t\t\t\t"dynamic_action_space": True\n'
-    decl_str += '\t\t\t}}\n'
+    decl_str += '\t\t\t}\n'
     decl_str += '\t\t)\n'
     lines.insert(idx, decl_str)
     
@@ -144,7 +144,7 @@ def domain_to_pddlgym_name(domain_name, test=False):
 def domain_name_to_config(domain_name):
     """Base config from the provided domain name.
     """
-    params = domain_name.split("_")
+    params = domain_name.lower().split("_")
     split_idx = params.index("split")
     
     # Domain type and split
