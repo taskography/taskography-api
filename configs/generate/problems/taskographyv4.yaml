@@ -11,7 +11,7 @@ dataset: PDDLGymDataset
 dataset_kwargs:
   data_dir: /Users/christopheragia/Projects/data/3dscenegraph
   split: tiny
-  problem_dir: /Users/christopheragia/Projects/stanford/taskography/pddlgym/pddlgym/pddl
+  problem_dir: ./third_party/pddlgym/pddl
   save_samplers: True
   sampler_dir: datasets/samplers/lifted_rearrangement
   train_scenes: 10
