@@ -1,5 +1,5 @@
+from multiprocessing.sharedctypes import Value
 import os
-from sqlite3 import paramstyle
 osp = os.path
 import yaml
 import pprint
@@ -85,6 +85,9 @@ class PDDLGymDatasetConfig(Config):
         # Seed
         self.config['seed'] = None
 
+        # Absolute paths
+        self.expand_vars(self.config)
+
     def save(self, dir="datasets/configs"):
         if not osp.exists(dir): os.makedirs(dir)
         super().save(osp.join(dir, self.domain_name + ".yaml"))
@@ -119,3 +122,15 @@ class PDDLGymDatasetConfig(Config):
     @property
     def pddlgym_name(self):
         return domain_to_pddlgym_name(self.domain_name)
+
+    @staticmethod
+    def expand_vars(config):
+        if isinstance(config, dict) and all([isinstance(k, str) for k in config.keys()]):
+            for key, value in config.items():
+                if isinstance(value, dict):
+                    PDDLGymDatasetConfig.expand_vars(value)
+                elif isinstance(value, str):
+                    if any(["$" in v for v in value.split("/")]):
+                        config[key] = osp.expandvars(value)
+            return
+        raise ValueError("Config must be a dictionary with string keys")

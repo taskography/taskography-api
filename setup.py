@@ -22,7 +22,7 @@ install_requires = [
     "scikit_image",
     "scipy",
     "setuptools",
-    "skimage",
+    "scikit-image",
     f"pddlgym_planners @ file://localhost/{Path(__file__).parent}/third_party/pddlgym_planners"
 ]
 
