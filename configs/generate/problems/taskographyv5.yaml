@@ -9,9 +9,9 @@ sampler_kwargs:
 
 dataset: PDDLGymDataset
 dataset_kwargs:
-  data_dir: /Users/christopheragia/Projects/data/3dscenegraph
+  data_dir: $DATA/3dscenegraph
   split: tiny
-  problem_dir: ./third_party/pddlgym/pddl
+  problem_dir: ./third_party/pddlgym/pddlgym/pddl
   save_samplers: True
   sampler_dir: datasets/samplers/lifted_courier
   train_scenes: 10
