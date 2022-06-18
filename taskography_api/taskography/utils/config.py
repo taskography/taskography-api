@@ -85,8 +85,12 @@ class PDDLGymDatasetConfig(Config):
         # Seed
         self.config['seed'] = None
 
+    @classmethod
+    def load(cls, path):
+        config = super().load(path)
         # Absolute paths
-        self.expand_vars(self.config)
+        config.expand_vars(config.config)
+        return config
 
     def save(self, dir="datasets/configs"):
         if not osp.exists(dir): os.makedirs(dir)
@@ -130,7 +134,9 @@ class PDDLGymDatasetConfig(Config):
                 if isinstance(value, dict):
                     PDDLGymDatasetConfig.expand_vars(value)
                 elif isinstance(value, str):
+                    print("Checking value:", value)
                     if any(["$" in v for v in value.split("/")]):
+                        print("Modifying it with expand_vars")
                         config[key] = osp.expandvars(value)
             return
         raise ValueError("Config must be a dictionary with string keys")
