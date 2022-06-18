@@ -1,8 +1,12 @@
 import setuptools
+from pathlib import Path
 
 with open("README.md", "r", encoding="utf-8") as fh:
         long_description = fh.read()
 
+install_requires = [
+    f"pddlgym_planners @ file://localhost/{Path(__file__).parent}/third_party/pddlgym_planners"
+]
 
 setuptools.setup(
     name='taskography_api',
@@ -20,4 +24,5 @@ setuptools.setup(
     ],
     packages=setuptools.find_packages(),
     python_requires='>=3.6',
+    install_requires=install_requires
 )

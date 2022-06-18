@@ -1,0 +1,6 @@
+[submodule "third_party/pddlgym_planners"]
+	path = third_party/pddlgym_planners
+	url = https://github.com/agiachris/pddlgym_planners.git
+[submodule "third_party/pddlgym"]
+	path = third_party/pddlgym
+	url = https://github.com/taskography/pddlgym.git

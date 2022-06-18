@@ -1,0 +1,2 @@
+# Editable pddlgym
+-e ./third_party/pddlgym

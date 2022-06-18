@@ -16,6 +16,8 @@ The raw [Gibson](https://3dscenegraph.stanford.edu/database.html) scene graph da
 - **Environment Wrappers.** 
 Gym wrappers enabling symbolic interaction with 3D scene graphs - in support of online decision making algorithms and reinforcement learning methods. 
 
+We refer to the [Instructions](#instructions) section for details on the basic and extended usage of our framework.
+
 
 ## Setup
 
@@ -31,6 +33,7 @@ brew install coreutils
 
 git clone https://github.com/taskography/taskography-api.git --recurse-submodules
 cd ./taskography_api && pip install .
+pip install -r requirements.txt
 ```
 
 
@@ -39,7 +42,6 @@ General instructions
 
 ### Basic Usage
 Add simple usage examples.
-
 
 ### Extended Usage
 Add tips for extended usage.
@@ -63,5 +65,5 @@ Taskography-API has an MIT [License](https://github.com/taskography/taskography-
 ## References
 We would like to credit the developers of several very useful packages.
 
-- [1] "PDDLGym: Gym Environments from PDDL Problems," Tom Silver, Rohan Chitnis, [link](https://github.com/tomsilver/pddlgym) to repository.
-- [2] "PDDLGym Planners: Lightweight Python interface for using off-the-shelf classical planners," Tom Silver, Rohan Chitnis, [link](https://github.com/ronuchit/pddlgym_planners) to repository.
+- "PDDLGym: Gym Environments from PDDL Problems," Tom Silver, Rohan Chitnis, [link](https://github.com/tomsilver/pddlgym) to repository.
+- "PDDLGym Planners: Lightweight Python interface for using off-the-shelf classical planners," Tom Silver, Rohan Chitnis, [link](https://github.com/ronuchit/pddlgym_planners) to repository.
