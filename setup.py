@@ -5,6 +5,24 @@ with open("README.md", "r", encoding="utf-8") as fh:
         long_description = fh.read()
 
 install_requires = [
+    "gym==0.21.0",
+    "flatten_dict",
+    "imageio",
+    "ipdb",
+    "matplotlib",
+    "multipledispatch",
+    "networkx",
+    "numpy",
+    "Pillow",
+    "psutil",
+    "pyrddl",
+    "pytest",
+    "PyYAML",
+    "recommonmark",
+    "scikit_image",
+    "scipy",
+    "setuptools",
+    "skimage",
     f"pddlgym_planners @ file://localhost/{Path(__file__).parent}/third_party/pddlgym_planners"
 ]
 
