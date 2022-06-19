@@ -35,7 +35,11 @@ class ProblemSamplerBase(ABC, TaskSamplerBase):
 
         TaskSamplerBase.__init__(self, loader(scene_graph_filepath))
         self.domain = PDDLDomainParser(domain_filepath, expect_action_preds=False, operators_as_actions=False)
-        self.domain_type = domain_name_to_config(self.domain.domain_name)["domain_type"]
+        try:
+            self.domain_type = domain_name_to_config(self.domain.domain_name)["domain_type"]
+        except:
+            self.domain_type = None
+        
         self.complexity = complexity
         self.bagslots = bagslots
         
