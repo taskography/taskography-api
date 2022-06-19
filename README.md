@@ -37,7 +37,7 @@ pip install -r requirements.txt
 ```
 
 
-## Instructions 
+## Instructions
 General instructions
 
 ### Basic Usage
