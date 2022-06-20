@@ -9,7 +9,8 @@ parser.add_argument("--data-path", "-d", type=str, required=True, help="Path to 
 args = parser.parse_args()
 
 # no assertions should be triggered when loading 3D scene graphs
-filedirs = [os.path.join(args.data_path, "tiny/verified_graph"), os.path.join(args.data_path, "medium/automated_graph")]
+data_path = os.path.expandvars(args.data_path)
+filedirs = [os.path.join(data_path, "tiny/verified_graph"), os.path.join(data_path, "medium/automated_graph")]
 filepaths = [os.path.join(fd, filename) for fd in filedirs for filename in os.listdir(fd)]
 for fp in filepaths:
     try:
