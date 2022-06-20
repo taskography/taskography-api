@@ -26,8 +26,8 @@ We refer to the [Instructions](#instructions) section for details on the basic a
 This repository has been primarily tested on Ubuntu 16.04, 18.04 and macOS Monterey with Python 3.6. 
 
 ### Installation 
-One of our package dependencies requires Docker - please follow [these steps](https://docs.docker.com/engine/install/) to install it. 
-We also recommend creating a virtual environment, e.g., with [venv](https://docs.python.org/3/library/venv.html) or [anaconda3](https://anaconda.org/) before proceeding with the following installation steps. 
+Install Docker as per [these steps](https://docs.docker.com/engine/install/). 
+We also recommend creating a virtual environment, e.g., with [venv](https://docs.python.org/3/library/venv.html) or [anaconda3](https://anaconda.org/) before proceeding with the following installation commands.
 
 ```bash
 # if on macOS
@@ -42,7 +42,7 @@ pip install -r requirements.txt
 Please follow the [download instructions](https://github.com/StanfordVL/3DSceneGraph) for the [Gibson 3D Scene Graph database](https://docs.google.com/forms/d/e/1FAIpQLScnlTFPUYtBqlN8rgj_1J3zJm44bIhmIx8gDhOqiJyTwja8vw/viewform?usp=sf_link). 
 The testing of our repository is limited to the *tiny* (388 Mb) and *medium* (389.5 Mb) data splits.
 
-Set an environment variable `$DATA` to parent directory of the unpacked dataset which should be organized as follows:
+Set an environment variable `$DATA` to parent directory of the unpacked dataset organized as follows:
 ```bash
 📦 3dscenegraph
  ┣ 📂 medium
@@ -63,14 +63,11 @@ Set an environment variable `$DATA` to parent directory of the unpacked dataset 
  ┗ 📜 3DSceneGraph_tiny.zip
 ```
 
-You may validate your dataset setup with:
-```bash
-python scripts/validate/loader.py --data-path $DATA/3dscenegraph
-```
+You may validate your dataset setup with: `python scripts/validate/loader.py --data-path $DATA/3dscenegraph`
 
 ## Instructions
-Taskography-API is designed to enable rapid prototyping of 3D scene graph planning domains.
-The API's functionality can be partitioned into three main code groups: [samplers](https://github.com/taskography/taskography-api/tree/main/taskography_api/taskography/samplers), [datasets](https://github.com/taskography/taskography-api/tree/main/taskography_api/taskography/datasets) and [envs](https://github.com/taskography/taskography-api/tree/main/taskography_api/taskography/envs), described in detail below. 
+Taskography-API is designed to enable rapid prototyping of 3D scene graph symbolic planning domains.
+The API's functionality can be partitioned into three main code groups: [samplers](https://github.com/taskography/taskography-api/tree/main/taskography_api/taskography/samplers), [datasets](https://github.com/taskography/taskography-api/tree/main/taskography_api/taskography/datasets) and [envs](https://github.com/taskography/taskography-api/tree/main/taskography_api/taskography/envs).
 
 ### Task Samplers
 Task samplers allow the user to generate an arbitrary number of [PDDL](https://planning.wiki/ref/pddl/domain) planning problems to any one 3D scene graph instance. 
