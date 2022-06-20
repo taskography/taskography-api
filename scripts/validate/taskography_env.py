@@ -13,7 +13,7 @@ def load_from_class(config):
 
 
 def load_from_registry(config):
-    env = gym.make("{}Env-v0".format(config["env"], config["env_kwargs"]))
+    env = gym.make("{}Env-v0".format(config["env"]), **config["env_kwargs"])
     env.reset()
     return env
 

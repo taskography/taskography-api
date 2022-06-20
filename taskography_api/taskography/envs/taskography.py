@@ -6,7 +6,6 @@ import gym
 from pddlgym.core import PDDLEnv
 
 from ..samplers import get_task_sampler
-from ..utils.constants import DOMAIN_ALIAS
 from ..utils.constants import OFFICIAL_SPLITS
 
 
@@ -72,7 +71,7 @@ class Taskography(gym.Env):
             sampler = self._problem_samplers[scene_idx]
 
             # Sampler tasks at random
-            for task in sampler.sample(k=self._episode_count, repeat=True):
+            for task in sampler.sample(k=self._episodes_per_scene, repeat=True):
                 sampler.write(**task, problem_dir=self._problem_dir)
 
             self._env = PDDLEnv(
@@ -85,7 +84,7 @@ class Taskography(gym.Env):
         assert isinstance(self._env, PDDLEnv)
         self._env.fix_problem_index(self._episode_count)
         state, _ = self._env.reset()
-            
+        
         self._episode_count += 1
         return state
 
