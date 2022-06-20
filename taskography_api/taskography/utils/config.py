@@ -1,4 +1,3 @@
-from multiprocessing.sharedctypes import Value
 import os
 osp = os.path
 import yaml
@@ -7,8 +6,7 @@ import copy
 import flatten_dict
 
 from .constants import (DOMAIN_ALIAS, DOMAIN_BAGSLOTS)
-from .utils import (REQUIRED_BASE_KEYS, \
-    config_to_domain_name, domain_to_pddlgym_name)
+from .utils import (REQUIRED_BASE_KEYS, config_to_domain_name, domain_to_pddlgym_name)
 
 
 class Config(object):

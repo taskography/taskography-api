@@ -1,11 +1,7 @@
 import argparse
 import yaml
-import random
-import numpy as np
 
 import taskography_api.taskography.datasets as datasets
-import taskography_api.taskography.utils as utils
-from taskography_api.taskography.samplers import get_task_sampler
 
 
 def generate_trajectories(config):

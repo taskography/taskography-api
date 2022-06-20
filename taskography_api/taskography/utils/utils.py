@@ -1,7 +1,5 @@
 import os.path as osp
 
-from .constants import (DOMAIN_ALIAS, DOMAIN_BAGSLOTS)
-
 
 REQUIRED_BASE_KEYS = [
     "domain_type",
