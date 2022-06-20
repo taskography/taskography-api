@@ -2,31 +2,32 @@ import os
 import json
 import pickle
 from abc import (ABC, abstractmethod)
+from __future__ import annotations
 
+from pddlgym.parser import (PDDLDomainParser, PDDLProblemParser)
+from pddlgym.structs import (Literal, LiteralConjunction, Predicate, Type)
 from .task_sampler_base import TaskSamplerBase
 from taskography_api.taskography.utils.loader import loader
-from taskography_api.taskography.utils.utils import \
-    scene_graph_name, sampler_name, domain_name_to_config
-from pddlgym.parser import (PDDLDomainParser, PDDLProblemParser)
+from taskography_api.taskography.utils.utils import (scene_graph_name, sampler_name, domain_name_to_config)
 
 
 class ProblemSamplerBase(ABC, TaskSamplerBase):
 
-    # Number of problem files written.
+    # Number of problem files written
     _num_written = 0
     
     @abstractmethod
     def __init__(self, 
-                 domain_filepath, 
-                 scene_graph_filepath, 
-                 complexity=1,
-                 bagslots=None
-                 ):
-        """An abstract class for sampling planning tasks in large 3D scene graphs.
+                 domain_filepath: str, 
+                 scene_graph_filepath: str, 
+                 complexity: int=1,
+                 bagslots: int=None
+                 ) -> None:
+        """An abstract base class for sampling planning tasks in large 3D scene graphs.
 
         args:
             domain_filepath: path to PDDL domain file
-            scene_graph_filepath: path to 3D scene file
+            scene_graph_filepath: path to 3D scene graph file
             complexity: level of difficulty for the sampled task (default: 1)
             bagslots: number of bagslots the agent is equipped with for Courier tasks (default: None)
         """
@@ -61,17 +62,17 @@ class ProblemSamplerBase(ABC, TaskSamplerBase):
         """Create set of task-agnostic PDDL entities, and a mapping from their entity
         string names to their corresponding PDDLGym objects.
         """
-        pass
+        raise NotImplementedError
     
     @abstractmethod
     def create_predicates(self):
         """Create a set of task-agnostic PDDL predicates, and a mapping from their predicate
         string names to their corresponding PDDLGym objects.
         """
-        pass
+        raise NotImplementedError
 
     @abstractmethod
-    def sample_task_repr(self):
+    def sample_task_repr(self) -> dict:
         """Randomly sample a single task and cast it into a low-memory representation. E.g., 
         task_repr = {
             "a_rid": room_*,                        # agent starting room ID      
@@ -87,16 +88,20 @@ class ProblemSamplerBase(ABC, TaskSamplerBase):
         returns:
             task_repr: low-memory dictionary representation of a task
         """
-        pass
+        raise NotImplementedError
 
     @abstractmethod
-    def sample(self, k=1, repeat=False):
+    def sample(self, 
+               k: int=1, 
+               repeat: bool=False
+               ) -> list[dict]:
         """Sample a list of k possible tasks in the domain. Hash low-memory representations
         of tasks into self.tasks to ensure novel tasks are sampled when repeat=False.
         
         args:
             k: batch size of tasks (default: 1)
-            repeat: whether or not the sampled task can be repeated (default: False)
+            repeat: enable repeats for sampled tasks (default: False)
+        
         returns:
             tasks: list of sampled task dictionaries
         """
@@ -115,24 +120,16 @@ class ProblemSamplerBase(ABC, TaskSamplerBase):
         # All objects / receptacles must have a designated parent room
         return self.valid_scene
 
-    # def reset(self, complexity=1, bagslots=None):
-    #     """Reset state of the sampler and optionally alter the complexity of the tasks, 
-    #     perhaps to be used in a curriculum train scheme.
-    #     """
-    #     self.tasks = set()
-    #     self.complexity = complexity
-    #     self.bagslots = bagslots
-
     def write(self, 
-              objects,
-              initial_state,
-              goal,
-              problem_filepath=None,
-              problem_name=None,
-              problem_dir='',
-              domain_name=None,
-              fast_downward_order=True
-              ):
+              objects: set[Type],
+              initial_state: set[Literal],
+              goal: LiteralConjunction[Predicate],
+              problem_filepath: str=None,
+              problem_name: str=None,
+              problem_dir: str='',
+              domain_name: str=None,
+              fast_downward_order: bool=True
+              ) -> str:
         """Write PDDL problem file to disk.
 
         args:
@@ -144,6 +141,7 @@ class ProblemSamplerBase(ABC, TaskSamplerBase):
             problem_dir: optional root directory to save the problem file (default: '')
             domain_name: name of the planning domain (default: None)
             fast_downward_order: whether or not the file should be written in FD-order (default: True)
+        
         returns:
             problem_filepath: full path to the written problem file
         """
@@ -168,7 +166,7 @@ class ProblemSamplerBase(ABC, TaskSamplerBase):
         ProblemSamplerBase._num_written += 1  
         return os.path.realpath(problem_filepath)
 
-    def save(self, dir=None):
+    def save(self, dir=None) -> None:
         """Save an instance of the sampler as a pickle file.
         """
         dir = os.path.join("datasets/samplers", self.domain_type) \
@@ -180,14 +178,19 @@ class ProblemSamplerBase(ABC, TaskSamplerBase):
             pickle.dump(self, fh)
         
     @classmethod
-    def load(cls, filepath):
+    def load(cls, filepath: str) -> ProblemSamplerBase:
         """Load a saved pickle instance of the sampler.
         """
         with open(filepath, "rb") as fh:
             return pickle.load(fh)
 
     @classmethod
-    def load_from_name(cls, scene_graph_filepath, complexity, dir, bagslots=None):
+    def load_from_name(cls, 
+                       dir: str, 
+                       scene_graph_filepath: str, 
+                       complexity: int, 
+                       bagslots: int=None
+                       ) -> ProblemSamplerBase:
         """Load a saved pickle instance of the sampler.
         """            
         _sampler_name = sampler_name(scene_graph_filepath, complexity, bagslots) + ".pkl"

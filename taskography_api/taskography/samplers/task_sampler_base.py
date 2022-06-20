@@ -1,28 +1,28 @@
-import numpy as np
 import heapq
+import numpy as np
+from __future__ import annotations
 
-from taskography_api.taskography.utils.scenegraph import Building
-from taskography_api.taskography.utils.constants import *
+from ..utils.scenegraph import Building
 from ..utils.constants import *
 from ..utils.utils import *
 
 
 class TaskSamplerBase(object):
 
-    def __init__(self, scene_graph):
-        """TaskSamplerBase parses a 3D scene graph symbolically and spatially to 
-        determine the hierarchical support relations between objects, receptacles, places, 
-        rooms, and their locations. This information is useful when describing the initial
-        state of a planning problem, as well as to sampling feasible goals.
+    def __init__(self, scene_graph: Building) -> None:
+        """Construct the hierarchical, symbolic and spatial relations between entities 
+        in a given scene graph, e.g., between objects, receptacles, places, rooms and 
+        their locations. This information is necessary for describing the initial state 
+        of a planning problem and to sample feasible goals grounded and lifted goals.
         
         args:
             scene_graph: a 3D scene graph Building object
         """
-        # parsed scene graph
+        # Parsed scene graph
         assert isinstance(scene_graph, Building)
         self.sg = scene_graph
 
-        # scene capabilities
+        # Scene capabilities
         self.valid_scene = True
         self.can_heat = False
         self.can_cool = False
@@ -32,42 +32,42 @@ class TaskSamplerBase(object):
         self.lifted_class_relations = set()
         self.lifted_class_matrix = None
 
-        # rooms
+        # Rooms
         self.num_rooms = 0
         self.room_names = dict()
         self.room_to_place_map = dict()
         self.place_to_room_map = dict()
-        # places
+        # Places
         self.num_places = 0
         self.place_names = dict()
         self.place_to_entity_map = dict()
         self.entity_to_place_map = dict()
-        # receptacles
+        # Receptacles
         self.num_receptacles = 0
         self.receptacles = dict()
         self.receptacle_names = dict()
         self.receptacle_to_object_map = dict()
-        # objects
+        # Objects
         self.num_objects = 0
         self.objects = dict()
         self.object_sizes = dict()
         self.object_names = dict()
         self.supported_objects = set()
         self.unsupported_objects = set()
-        # locations
+        # Locations
         self.locations = dict()
         self.location_names = dict()
         
-        # categorize scene entities and get names
+        # Categorize scene entities and get names
         self.get_scene_entities()
-        # get hierarchical support relations: object-receptacle, object-room, receptacle-room
+        # Get hierarchical support relations: object-receptacle, object-room, receptacle-room
         self.get_support_relations()
         # 2d grid coordinates, room ids, and floor numbers for objects, receptacles and places
         self.get_locations()
-        # build 2d matrix of lifted (class-specific) object-receptacle problem difficulty scores
+        # Build 2d matrix of lifted (class-specific) object-receptacle problem difficulty scores
         self.build_lifted_class_matrix()
 
-    def get_scene_entities(self):
+    def get_scene_entities(self) -> None:
         """Categorize object and receptacle IDs by their class.
         """
         self.receptacles['all'] = set()
@@ -89,7 +89,7 @@ class TaskSamplerBase(object):
         for e_id in self.sg.object:
             scene_entity = self.sg.object[e_id]
 
-            # consider only objects and receptacles with a parent room
+            # Consider only objects and receptacles with a parent room
             parent_room_id = scene_entity.parent_room
             if parent_room_id is not None:
 
@@ -134,7 +134,7 @@ class TaskSamplerBase(object):
         if len(self.objects['coolable_type']) > 0 and len(self.receptacles['cooling_type']) > 0: self.can_cool = True
         if len(self.objects['cleanable_type']) > 0 and len(self.receptacles['cleaning_type']) > 0: self.can_clean = True
         
-        # sort object / receptacle semantic class by their frequency
+        # Sort object / receptacle semantic class by their frequency
         sorted_object_class = sorted(list(self.objects['class_count'].items()), key=lambda x: x[1])
         for idx, (class_, _) in enumerate(sorted_object_class):
             self.objects['class_index'][class_] = idx
@@ -144,7 +144,7 @@ class TaskSamplerBase(object):
             self.receptacles['class_index'][class_] = idx
             self.receptacles['class_index_inv'][idx] = class_
 
-        # categorize empty rooms
+        # Categorize empty rooms
         for room_id in self.sg.room:
             if room_id not in self.room_names:
                 room = self.sg.room[room_id]
@@ -156,7 +156,7 @@ class TaskSamplerBase(object):
                 self.place_names[self.num_places] = place_to_str_name(self.num_places, room, is_room=True)
                 self.num_places += 1
 
-    def get_support_relations(self, dist_threshold=2):
+    def get_support_relations(self, dist_threshold: float=2) -> None:
         """Determine object-receptacle support relations based on the dist_threshold proximity
         metric. Standalone objects (unsupported by a receptacle) map to -1. 
         """       
@@ -172,7 +172,7 @@ class TaskSamplerBase(object):
                 if obj_room != rec_room: 
                     continue
 
-                # proximity threshold
+                # Proximity threshold
                 dist = np.linalg.norm(obj_inst.location - rec_inst.location, 2)
                 if dist < dist_threshold:
                     if o_id not in self.supported_objects:
@@ -180,14 +180,14 @@ class TaskSamplerBase(object):
                         object_distances[o_id] = list()
                     heapq.heappush(object_distances[o_id], (dist, r_id))
         
-        # assign object to closest receptacle
+        # Assign object to closest receptacle
         for o_id in object_distances:
             _, r_id = object_distances[o_id][0]
             self.receptacle_to_object_map[r_id].add(o_id)
             self.lifted_class_relations.add((self.sg.object[o_id].class_.replace(' ', ''), self.sg.object[r_id].class_.replace(' ', '')))
         self.unsupported_objects = self.objects['all'] - self.supported_objects
 
-        # define place-entity and room-place mappings
+        # Define place-entity and room-place mappings
         self.entity_to_place_map['objects'] = dict()
         self.entity_to_place_map['receptacles'] = dict()
         for o_id in self.unsupported_objects:
@@ -211,7 +211,7 @@ class TaskSamplerBase(object):
             self.place_to_room_map[self.num_places] = rec_inst.parent_room
             self.num_places += 1
 
-    def get_locations(self):
+    def get_locations(self) -> None:
         """Compute locations of all objects, receptacles, and places (self.room_to_place_map[room_id]['root']).
         """
         self.locations['objects'] = dict()
@@ -221,7 +221,7 @@ class TaskSamplerBase(object):
         self.location_names['unique'] = set()
         voxel_res = self.sg.voxel_size
         
-        # object locations
+        # Object locations
         for o_id in self.objects['all']:
             obj_coord = np.floor(self.sg.object[o_id].location / voxel_res).astype(int)[:2]
             room_id = self.sg.object[o_id].parent_room
@@ -232,7 +232,7 @@ class TaskSamplerBase(object):
             self.location_names['unique'].add(location_name)
             self.locations['objects'][o_id] = room_data
 
-        # receptacle locations
+        # Receptacle locations
         for r_id in self.receptacles['all']:
             rec_coord = np.floor(self.sg.object[r_id].location / voxel_res).astype(int)[:2]
             room_id = self.sg.object[r_id].parent_room
@@ -243,7 +243,7 @@ class TaskSamplerBase(object):
             self.location_names['unique'].add(location_name)
             self.locations['receptacles'][r_id] = room_data
 
-        # place locations (room doors)
+        # Place locations (room doors)
         for room_id in self.room_to_place_map:
             room_coord = np.floor(self.sg.room[room_id].location / voxel_res).astype(int)[:2]
             floor_num = self.sg.room[room_id].floor_number
@@ -254,14 +254,14 @@ class TaskSamplerBase(object):
             self.location_names['unique'].add(location_name)
             self.locations['places'][place_id] = room_data
 
-        # place locations (remaining places)
+        # Place locations (remaining places)
         for place_id in self.place_to_entity_map:
             e_id = self.place_to_entity_map[place_id]['root']
             self.location_names['places'][place_id] = self.location_names[e_id]
             e_type = 'receptacles' if e_id not in self.unsupported_objects else 'objects'
             self.locations['places'][place_id] = self.locations[e_type][e_id]
 
-    def build_lifted_class_matrix(self):
+    def build_lifted_class_matrix(self) -> None:
         """Build a matrix scoring the combined object-receptacle lifted problem difficulty.
         """
         self.lifted_class_matrix = np.zeros((len(self.objects['class_count']), len(self.receptacles['class_count'])))
