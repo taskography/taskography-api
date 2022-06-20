@@ -63,7 +63,10 @@ Set an environment variable `$DATA` to parent directory of the unpacked dataset 
  ┗ 📜 3DSceneGraph_tiny.zip
 ```
 
-You may validate your dataset setup with: `python scripts/validate/loader.py --data-path $DATA/3dscenegraph`
+You may validate your dataset setup with: 
+```bash
+python scripts/validate/loader.py --data-path $DATA/3dscenegraph
+```
 
 ## Instructions
 Taskography-API is designed to enable rapid prototyping of 3D scene graph symbolic planning domains.
@@ -82,7 +85,7 @@ Task category versions are often referred to interchangebly by their domain alia
 | `Lifted Rearrangement(k)`      | [TaskSamplerV4](https://github.com/taskography/taskography-api/blob/main/taskography_api/taskography/samplers/domains/taskographyv4.py) | [taskographyv4.pddl](https://github.com/taskography/taskography-api/blob/main/domains/taskographyv4.pddl) | Satisfy `k` item-receptacle class relations (e.g., cup in sink) sampled at random |
 | `Lifted Courier(n,k)`          | [TaskSamplerV5](https://github.com/taskography/taskography-api/blob/main/taskography_api/taskography/samplers/domains/taskographyv5.py) | [taskographyv5.pddl](https://github.com/taskography/taskography-api/blob/main/domains/taskographyv5.pddl) | `Lifted Rearrangement(k)` + bagslot capacity `n` to stow and retrieve items |
 
-##### Additional Notes
+##### Additional Details
 Task samplers must subclass [ProblemSamplerBase](https://github.com/taskography/taskography-api/blob/main/taskography_api/taskography/samplers/problem_sampler_base.py): an abstract base class defining several must-implement methods that interface heavily with PDDLGym's [domain parser](https://github.com/tomsilver/pddlgym/blob/master/pddlgym/parser.py#L433) to create object-oriented references to scene graph entities and relations before the [problem parser](https://github.com/tomsilver/pddlgym/blob/master/pddlgym/parser.py#L622) writes them out as PDDL problem files. 
 
 [ProblemSamplerBase](https://github.com/taskography/taskography-api/blob/main/taskography_api/taskography/samplers/problem_sampler_base.py) itself inherets from [TaskSamplerBase](https://github.com/taskography/taskography-api/blob/main/taskography_api/taskography/samplers/task_sampler_base.py), which is responsible for determining the hierarchical, spatial, and symbolic relationships between nodes in the [loaded](https://github.com/taskography/taskography-api/blob/main/taskography_api/taskography/utils/loader.py) 3D scene graph.
@@ -113,12 +116,12 @@ With this complete, creating a novel PDDLGym environment is as simple as running
 python scripts/generate_domain.py --config <path/to/problem_config.yaml>
 ```
 
-##### Additional Notes
+##### Additional Details
 Our instructions installs PDDLGym at `third_party/pddlgym` as an editable package. 
 This allows new environments to be incorporated without rebuilding Taskography-API.
 The script dynamically modifies [`pddlgym/pddlgym/__init__.py`](https://github.com/tomsilver/pddlgym/blob/master/pddlgym/__init__.py) so that new environments are registered the next time `import pddlgym` is run. If you did not follow our installation instructions, you may need to modify the configuration file's `problem_dir` parameter to reflect your PDDLGym package location.
 
-If parameter `save_samplers` is set true, the task samplers will be saved in pickle file format to the default location of `datasets/samplers/<domain_type>/<sampler_name>`.
+If parameter `save_samplers` is set true, the task samplers will be saved in pickle file format to the default location of `datasets/samplers/<domain_alias>/<sampler_name>`.
 This circumvents 3D scene graph pre-processing when generating additional datasets of previously specified tasks.
 
 #### Trajectory Datasets
