@@ -3,21 +3,33 @@ import random
 import tempfile
 import shutil
 import gym
-from pddlgym.core import PDDLEnv
+from __future__ import annotations
 
+from pddlgym.core import PDDLEnv
+from pddlgym.structs import Literal
 from ..samplers import get_task_sampler
+from ..samplers.problem_sampler_base import ProblemSamplerBase
 from ..utils.constants import OFFICIAL_SPLITS
 
 
 class Taskography(gym.Env):
 
     def __init__(self,
-                 sampler,
-                 sampler_kwargs,
-                 data_dir,
-                 split,
-                 episodes_per_scene=10,
-                 ):
+                 sampler: str,
+                 sampler_kwargs: dict,
+                 data_dir: str,
+                 split: str,
+                 episodes_per_scene: int=10,
+                 ) -> None:
+        """The Taskography gym environment class.
+
+        args:
+            sampler: task sampler name
+            sampler_kwargs: task sampler kwargs
+            data_dir: path to root directory of 3D scene graph data
+            split: Gibson dataset split
+            episodes_per_scene: number of episodes before sampling new scene (default: 10)
+        """
         self._sampler = sampler
         self._sampler_kwargs = sampler_kwargs
         self._data_dir = os.path.expandvars(data_dir)
@@ -39,8 +51,11 @@ class Taskography(gym.Env):
     def action_space(self):
         return self._env.action_space
 
-    def _load_samplers(self):
-        """Load up a task sampler for each scene_graph_filepath.
+    def _load_samplers(self) -> list[ProblemSamplerBase]:
+        """Instantiate a task sampler for each scene graph.
+
+        returns:
+            problem_samplers: list of task samplers subclassing ProblemSamplerBase
         """
         sampler_cls = get_task_sampler(self._sampler)
         sampler_kwargs = self._sampler_kwargs.copy()
@@ -52,14 +67,16 @@ class Taskography(gym.Env):
 
         problem_samplers = []
         for scene_graph_filepath in scene_graph_filepaths:
-            # Instantiate sampler
             sampler_kwargs["scene_graph_filepath"] = scene_graph_filepath
             problem_samplers.append(sampler_cls(**sampler_kwargs))
 
         return problem_samplers
 
-    def reset(self):
-        """Sample scene graph taks at random.
+    def reset(self) -> set[Literal]:
+        """Sample scene graph and task at uniform random.
+
+        returns:
+            state: set of state literals
         """
         if self._episode_count % self._episodes_per_scene == 0:
             self._episode_count = 0
@@ -88,10 +105,22 @@ class Taskography(gym.Env):
         self._episode_count += 1
         return state
 
-    def step(self, action):
+    def step(self, 
+             action: Literal  
+             ) -> tuple[set[Literal], float, bool, dict]:
         """Take symbolic environment step.
+
+        args:
+            action: current action as literal
+
+        returns:
+            state: set of state literals
+            reward: 1 if the goal is reached, 0 otherwise
+            done: True if the goal is reached
+            debug_info: dictionary of debug information
         """
-        return self._env.step(action)
+        state, reward, done, debug_info = self._env.step(action)
+        return state, reward, done, debug_info
 
     def render(self):
         raise NotImplementedError("Symbolic renderer is not implemented.")

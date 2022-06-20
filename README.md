@@ -23,7 +23,7 @@ We refer to the [Instructions](#instructions) section for details on the basic a
 ## Setup
 
 ### System Requirements
-This repository has been primarily tested on Ubuntu 16.04, 18.04 and macOS Monterey with Python 3.6. 
+This repository has been primarily tested on Ubuntu 16.04, 18.04 and macOS Monterey with Python 3.7. 
 
 ### Installation 
 Install Docker as per [these steps](https://docs.docker.com/engine/install/). 

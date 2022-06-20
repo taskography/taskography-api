@@ -27,7 +27,7 @@ class PDDLGymDataset:
 
         args:
             data_dir: path to root directory of 3D scene graph data
-            split: dataset split
+            split: Gibson dataset split
             problem_dir: path to save sampled problem files
             train_scenes: number of scenes to use for training problems        
             samples_per_train_scene: unique samples per train scene
