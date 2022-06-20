@@ -1,5 +1,5 @@
 import os
-osp = os.path
+import os.path as osp
 import yaml
 import pprint
 import copy
@@ -127,6 +127,8 @@ class PDDLGymDatasetConfig(Config):
 
     @staticmethod
     def expand_vars(config):
+        """Recurse config dictionary and expand all environment variables.
+        """
         if isinstance(config, dict) and all([isinstance(k, str) for k in config.keys()]):
             for key, value in config.items():
                 if isinstance(value, dict):

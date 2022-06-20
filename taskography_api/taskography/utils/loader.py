@@ -1,14 +1,19 @@
 import numpy as np
 import networkx as nx
 from collections import defaultdict
+from __future__ import annotations
 
 from .scenegraph import *
 
 
-def loader(path):
+def loader(path: str) -> Building:
     """Load a 3D scene graph.
+
     args:
         path: path to an iGibson scene graph pickle file.
+    
+    returns:
+        building: 3D scene graph building
     """
     data = np.load(path, allow_pickle=True)["output"].item()
     building = Building()
@@ -65,12 +70,13 @@ def loader(path):
     return building
 
 
-def scenegraph_mst(building):
+def scenegraph_mst(building: Building) -> None:
     """Apply Kruskal's algorithm to find the minimum spanning tree of room connectivities.
     Edge weights are determined by the distance between rooms' centroids. Heuristics are 
     used to determine floor adjacency such that only a single connection exists between floors.
+    
     args:
-        building: a loaded <Building(SceneGraphNode)> object.
+        building: a loaded 3D scene graph building       
     """
     room_ids, room_loc, floor_rooms = index_building(building)
 
@@ -141,7 +147,7 @@ def scenegraph_mst(building):
         building.room[room_ids[room_b_idx]].connected_rooms.add(room_ids[room_a_idx])
 
 
-def index_building(building):
+def index_building(building: Building) -> tuple[dict, dict, defaultdict]:
     """Index rooms and floors in the building.
     """
     room_ids = dict()                   # dict(key=room_idx, value=room_id)
