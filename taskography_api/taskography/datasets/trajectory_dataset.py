@@ -1,32 +1,41 @@
 import os
 import pickle
-import yaml
 from collections import defaultdict
+from __future__ import annotations
+
 import pddlgym
 from pddlgym_planners import PlannerHandler
 from pddlgym_planners.planner import (PlanningTimeout, PlanningFailure)
-
-from taskography_api.taskography.samplers import get_task_sampler
 from taskography_api.taskography.utils.utils import domain_to_pddlgym_name
 
 
 class TrajectoryGymDataset:
 
     def __init__(self,
-                 env,
-                 planner,
-                 trajectory_dir=None,
-                 test=True
-                 ):
+                 env: str,
+                 planner: str,
+                 trajectory_dir: str=None,
+                 test: bool=True
+                 ) -> None:
+        """A class for generating expert demonstrations from symbolic task
+        planners on 3D scene graph PDDLGym environments.
+
+        args:
+            env: PDDLGym environment name
+            planner: task planner name
+            trajectory_dir: path to save trajectory data
+            test: save test split solution (default: True)
+        """
         self.env = env
         self.planner = PlannerHandler()[planner]
         self.trajectory_dir = trajectory_dir
         self.test = test
 
-    def generate_from_env(self, test=False):
+    def generate_from_env(self) -> None:
+        """Generate state-action trajectories atop PDDLGym environment.
+        """
         assert self.env is not None, "PDDLGym environment name not provided"
         domain_name = self.env.strip("PDDLEnv").split("-")[0].lower()
-        test = self.test if self.test is not None else test
         
         # Output trajectory directory
         if self.trajectory_dir is None:
@@ -37,7 +46,7 @@ class TrajectoryGymDataset:
         
         metadata = defaultdict(list)
         solved, failed, timeout = 0, 0, 0
-        modes = ["train"] if not test else ["train", "test"]
+        modes = ["train"] if not self.test else ["train", "test"]
         for mode in modes:
             # Make environment
             env_name = domain_to_pddlgym_name(domain_name, test=mode == "test")

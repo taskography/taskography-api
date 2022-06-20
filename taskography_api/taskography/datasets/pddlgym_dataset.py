@@ -1,38 +1,38 @@
-from email.policy import default
 import os
 import os.path as osp
 import random
 from collections import defaultdict
+from __future__ import annotations
 
 from pddlgym.parser import PDDLDomainParser
-from taskography_api.taskography.utils.utils import \
-    (register_pddlgym_domain, write_domain_file, domain_name_to_config)
+from taskography_api.taskography.samplers.problem_sampler_base import ProblemSamplerBase
+from taskography_api.taskography.utils.utils import (register_pddlgym_domain, write_domain_file, domain_name_to_config)
 from taskography_api.taskography.utils.constants import (OFFICIAL_SPLITS, SPLIT_SCENES)
 
 
 class PDDLGymDataset:
 
     def __init__(self,
-                 data_dir,
-                 split,
-                 problem_dir,
-                 train_scenes,
-                 samples_per_train_scene,
-                 samples_per_test_scene,
-                 save_samplers=False,
-                 sampler_dir=None,
-                 seed=0,
-                 ):
-        """Generate PDDLGym-interfaced symbolic robot planning datasets fully automatically.
+                 data_dir: str,
+                 split: str,
+                 problem_dir: str,
+                 train_scenes: int,
+                 samples_per_train_scene: int,
+                 samples_per_test_scene: int,
+                 save_samplers: bool=False,
+                 sampler_dir: str=None,
+                 seed: int=0,
+                 ) -> None:
+        """A class for generating PDDLGym 3D scene graph symbolic planning datasets.
 
         args:
             data_dir: path to root directory of 3D scene graph data
-            split: dataset split (i.e., tiny or medium scene graphs)
-            problem_dir: path to save sampled problem files; pddlgym/pddlgym/pddl
-            train_scenes: number of scenes to use for training problems
+            split: dataset split
+            problem_dir: path to save sampled problem files
+            train_scenes: number of scenes to use for training problems        
             samples_per_train_scene: unique samples per train scene
             samples_per_test_scene: unique samples for the remaining test scenes
-            save_samplers: whether or not to save the scene-specific problem samplers (default: False)
+            save_samplers: save the scene-specific problem samplers (default: False)
             sampler_dir: path to save the scene-specific problem samplers (default: None)
             seed: pseudo-random generator seed (default: 0)
         """
@@ -56,10 +56,22 @@ class PDDLGymDataset:
         self.problem_filepaths = defaultdict(list)
 
     def generate(self, 
-                 domain_name,
-                 sampler_cls, 
-                 sampler_kwargs,
-                 ):
+                 domain_name: str,
+                 sampler_cls: ProblemSamplerBase, 
+                 sampler_kwargs: dict
+                 ) -> tuple[str, list[str]]:
+        """Generate 3D scene graph symbolic planning domain. Dynamically modify PDDLGym scripts
+        to register the environment.
+
+        args:
+            domain_name: unique name of the environment
+            sampler_cls: task sampler subclassing ProblemSamplerBase
+            sampler_kwargs: task sampler kwargs
+        
+        returns:
+            domain_filepath: path to written PDDL domain file
+            problem_filepaths: paths to written PDDL problem files
+        """
         # Convert domain name
         self.domain_filepath = osp.join(self.problem_dir, domain_name + ".pddl")
         assert not osp.exists(self.domain_filepath), f"Dataset {domain_name} already exists"
