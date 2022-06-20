@@ -9,9 +9,8 @@ from taskography_api.taskography.samplers import get_task_sampler
 
 
 def generate_domain(config):
-    """Generate a PDDLGym environment. Auto-updates the necessary files in the PDDLGym package 
-    to enable the use of the environment through the Gym registry. Optionally save domain samplers
-    to save future computation on graph construction for sampling tasks or trajectory generation.
+    """Generate a PDDLGym environment as per the task sampler and dataset 
+    configuration parameters.
     """
     dataset = vars(datasets)[config["dataset"]](
         seed=config["seed"],
@@ -29,12 +28,11 @@ if __name__ == '__main__':
     parser.add_argument("--config", "-c", type=str, required=True, help="Path to YAML configuration file")
     args = parser.parse_args()
     
-    # Load and save config
     with open(args.config, "r") as fh:
         config = yaml.safe_load(fh)
     config = vars(utils)[config["dataset"] + "Config"].load(args.config)
     config.save()
+    
     random.seed(config["seed"])
     np.random.seed(config["seed"])
-    
     generate_domain(config)

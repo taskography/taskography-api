@@ -5,9 +5,8 @@ import taskography_api.taskography.datasets as datasets
 
 
 def generate_trajectories(config):
-    """Generate task plan demonstrations from planners on an existing PDDLGym
-    environment or randomly sampled (unsaved) tasks. Demonstrations are stored as
-    (list(states), list(actions)) tuples. 
+    """Generate expert demonstrations from planners on an existing PDDLGym
+    environment as per the configuration parameters.
     """
     dataset = vars(datasets)[config["dataset"]](**config["dataset_kwargs"])
     dataset.generate_from_env()
