@@ -1,7 +1,7 @@
+import json
 import os.path as osp
 
 from pddlgym.parser import PDDLDomainParser
-
 from .scenegraph import (Room, SceneGraphNode, SceneObject)
 
 
@@ -194,3 +194,15 @@ def sampler_name(scene_graph_filepath: str,
     bagslots = 0 if bagslots is None else bagslots
     sampler_name += f"_n{bagslots}_k{complexity}"
     return sampler_name
+
+
+def load_json(filepath: str) -> dict:
+    data = None
+    with open(filepath, 'r') as fp:
+        data = json.load(fp)
+    return data
+
+
+def save_json(filepath: str, data: dict) -> None:
+    with open(filepath, 'w') as fp:
+        json.dump(data, fp, indent=4, sort_keys=True)
