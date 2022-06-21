@@ -151,6 +151,23 @@ For efficiency, there's the option to pre-compute `episodes_per_scene` tasks per
 Tasks are sampled with replacement.
 
 
+### Benchmarking Scripts
+We provide two additional [benchmarking scripts](https://github.com/taskography/taskography-api/tree/main/scripts/benchmark) for extracting metrics of interest against newly generated PDDLGym environments. 
+
+To benchmark the performance of any supported planner on a particular domain, [`scripts/benchmark/plan.py`](https://github.com/taskography/taskography-api/blob/main/scripts/benchmark/plan.py) is the appropriate entry point:
+```bash
+python scripts/benchmark/plan.py --domain-name <pddlgym_domain_name> --planner <planner_name> [--log-dir <log_dir>] [--expid <expid>] [--timeout <timeout>]
+```
+
+To analyze key properties of the PDDLGym environment, e.g., the number of ground actions or the mean branch fator across all task instances, use [`scripts/benchmark/domain_analysis.py`](https://github.com/taskography/taskography-api/blob/main/scripts/benchmark/domain_analysis.py) as:
+```bash
+python scripts/benchmark/domain_analysis.py --domain-name <pddlgym_domain_name> --exp-name <exp_name>
+```
+
+Statistics are by default saved to the `exps` directory. 
+Please refer to the code for optional arguments not included above.
+
+
 ## Citation
 Taskography-API has an MIT [License](https://github.com/taskography/taskography-api/blob/main/LICENSE). If you find this package helpful, please consider citing our work:
 
