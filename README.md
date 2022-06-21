@@ -151,7 +151,7 @@ For efficiency, there's the option to pre-compute `episodes_per_scene` tasks per
 Tasks are sampled with replacement.
 
 
-### Benchmarking Scripts
+### Benchmarking
 We provide two additional [benchmarking scripts](https://github.com/taskography/taskography-api/tree/main/scripts/benchmark) for extracting metrics of interest against newly generated PDDLGym environments. 
 
 To benchmark the performance of any supported planner on a particular domain, [`scripts/benchmark/plan.py`](https://github.com/taskography/taskography-api/blob/main/scripts/benchmark/plan.py) is the appropriate entry point:
