@@ -152,6 +152,7 @@ Tasks are sampled with replacement.
 
 
 ### Benchmarking
+
 We provide two additional [benchmarking scripts](https://github.com/taskography/taskography-api/tree/main/scripts/benchmark) for extracting metrics of interest against newly generated PDDLGym environments. To benchmark the performance of any supported planner on a particular domain, [`scripts/benchmark/plan.py`](https://github.com/taskography/taskography-api/blob/main/scripts/benchmark/plan.py) is the appropriate entry point:
 ```bash
 python scripts/benchmark/plan.py --domain-name <pddlgym_domain_name> --planner <planner_name> [--log-dir <log_dir>] [--expid <expid>] [--timeout <timeout>]
@@ -164,6 +165,10 @@ python scripts/benchmark/domain_analysis.py --domain-name <pddlgym_domain_name> 
 
 Statistics are by default saved to the `./exps`. 
 Please refer to the code for optional arguments not included above.
+
+#### Important Note: Official Benchmark
+The official benchmark domains are pre-registered in our PDDLGym fork and follow a different naming convention than those produced by Taskography-API.
+A list of the domain names can be found in [constants.py](https://github.com/taskography/taskography-api/blob/main/taskography_api/taskography/utils/constants.py#L308) with associated benchmark results made available in [`benchmark`](https://github.com/taskography/taskography-api/tree/main/benchmark).
 
 
 ## Citation
