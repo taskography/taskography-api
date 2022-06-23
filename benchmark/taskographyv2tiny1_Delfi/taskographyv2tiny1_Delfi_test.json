@@ -1,0 +1,13 @@
+{
+    "failure_rate": 0.01818181818181818,
+    "num_node_expansions": 84.76086956521739,
+    "num_node_expansions_std": 97.37582611863857,
+    "plan_length": 15.130434782608695,
+    "plan_length_std": 4.067948396770806,
+    "search_time": 4.886965526086957,
+    "search_time_std": 31.316485444629343,
+    "success_rate": 0.8363636363636363,
+    "timeout_rate": 0.14545454545454545,
+    "total_time": 0.36215192173913047,
+    "total_time_std": 0.27545355745669164
+}
