@@ -1,8 +1,9 @@
+from typing import Tuple, List, Dict
+
 import os
 import os.path as osp
 import random
 from collections import defaultdict
-from __future__ import annotations
 
 from pddlgym.parser import PDDLDomainParser
 from taskography_api.taskography.samplers.problem_sampler_base import ProblemSamplerBase
@@ -58,8 +59,8 @@ class PDDLGymDataset:
     def generate(self, 
                  domain_name: str,
                  sampler_cls: ProblemSamplerBase, 
-                 sampler_kwargs: dict
-                 ) -> tuple[str, list[str]]:
+                 sampler_kwargs: Dict
+                 ) -> Tuple[str, List[str]]:
         """Generate 3D scene graph symbolic planning domain. Dynamically modify PDDLGym scripts
         to register the environment.
 

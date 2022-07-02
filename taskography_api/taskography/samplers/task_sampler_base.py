@@ -1,6 +1,5 @@
 import heapq
 import numpy as np
-from __future__ import annotations
 
 from ..utils.scenegraph import Building
 from ..utils.constants import *

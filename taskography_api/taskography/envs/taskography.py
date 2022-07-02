@@ -1,9 +1,10 @@
+from typing import Tuple, List, Dict, Set
+
 import os
 import random
 import tempfile
 import shutil
 import gym
-from __future__ import annotations
 
 from pddlgym.core import PDDLEnv
 from pddlgym.structs import Literal
@@ -16,7 +17,7 @@ class Taskography(gym.Env):
 
     def __init__(self,
                  sampler: str,
-                 sampler_kwargs: dict,
+                 sampler_kwargs: Dict,
                  data_dir: str,
                  split: str,
                  episodes_per_scene: int=10,
@@ -51,7 +52,7 @@ class Taskography(gym.Env):
     def action_space(self):
         return self._env.action_space
 
-    def _load_samplers(self) -> list[ProblemSamplerBase]:
+    def _load_samplers(self) -> List[ProblemSamplerBase]:
         """Instantiate a task sampler for each scene graph.
 
         returns:
@@ -72,7 +73,7 @@ class Taskography(gym.Env):
 
         return problem_samplers
 
-    def reset(self) -> set[Literal]:
+    def reset(self) -> Set[Literal]:
         """Sample scene graph and task at uniform random.
 
         returns:
@@ -107,7 +108,7 @@ class Taskography(gym.Env):
 
     def step(self, 
              action: Literal  
-             ) -> tuple[set[Literal], float, bool, dict]:
+             ) -> Tuple[Set[Literal], float, bool, Dict]:
         """Take symbolic environment step.
 
         args:

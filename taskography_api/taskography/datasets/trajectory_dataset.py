@@ -1,7 +1,6 @@
 import os
 import pickle
 from collections import defaultdict
-from __future__ import annotations
 
 import pddlgym
 from pddlgym_planners import PlannerHandler

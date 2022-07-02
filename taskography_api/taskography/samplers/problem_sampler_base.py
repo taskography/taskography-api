@@ -1,8 +1,10 @@
+from typing import List, Dict, Set
+from __future__ import annotations
+
 import os
 import json
 import pickle
 from abc import (ABC, abstractmethod)
-from __future__ import annotations
 
 from pddlgym.parser import (PDDLDomainParser, PDDLProblemParser)
 from pddlgym.structs import (Literal, LiteralConjunction, Predicate, Type)
@@ -72,7 +74,7 @@ class ProblemSamplerBase(ABC, TaskSamplerBase):
         raise NotImplementedError
 
     @abstractmethod
-    def sample_task_repr(self) -> dict:
+    def sample_task_repr(self) -> Dict:
         """Randomly sample a single task and cast it into a low-memory representation. E.g., 
         task_repr = {
             "a_rid": room_*,                        # agent starting room ID      
@@ -94,7 +96,7 @@ class ProblemSamplerBase(ABC, TaskSamplerBase):
     def sample(self, 
                k: int=1, 
                repeat: bool=False
-               ) -> list[dict]:
+               ) -> List[Dict]:
         """Sample a list of k possible tasks in the domain. Hash low-memory representations
         of tasks into self.tasks to ensure novel tasks are sampled when repeat=False.
         
@@ -121,8 +123,8 @@ class ProblemSamplerBase(ABC, TaskSamplerBase):
         return self.valid_scene
 
     def write(self, 
-              objects: set[Type],
-              initial_state: set[Literal],
+              objects: Set[Type],
+              initial_state: Set[Literal],
               goal: LiteralConjunction[Predicate],
               problem_filepath: str=None,
               problem_name: str=None,
