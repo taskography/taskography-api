@@ -177,7 +177,7 @@ Taskography-API has an MIT [License](https://github.com/taskography/taskography-
 ```
 @inproceedings{agia2022taskography,
   title={Taskography: Evaluating robot task planning over large 3D scene graphs},
-  author={Agia, Christopher and Jatavallabhula, Krishna Murthy and Khodeir, Mohamed and Miksik, Ondrej and Vineet, Vibhav and Mukadam, Mustafa and Paull, Liam and Shkurti, Florian},
+  author={Agia, Christopher and Jatavallabhula, {Krishna Murthy} and Khodeir, Mohamed and Miksik, Ondrej and Vineet, Vibhav and Mukadam, Mustafa and Paull, Liam and Shkurti, Florian},
   booktitle={Conference on Robot Learning},
   pages={46--58},
   year={2022},
