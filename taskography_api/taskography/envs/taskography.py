@@ -1,4 +1,4 @@
-from typing import Tuple, List, Dict, Set
+from typing import Tuple, List, Dict, Set, Type
 
 import os
 import random
@@ -52,7 +52,7 @@ class Taskography(gym.Env):
     def action_space(self):
         return self._env.action_space
 
-    def _load_samplers(self) -> List[ProblemSamplerBase]:
+    def _load_samplers(self) -> List[Type[ProblemSamplerBase]]:
         """Instantiate a task sampler for each scene graph.
 
         returns:

@@ -1,3 +1,5 @@
+from typing import Dict, Tuple
+
 import json
 import os.path as osp
 
@@ -67,7 +69,7 @@ def object_to_str_name(obj_inst: SceneObject, size: int) -> str:
     return f"item{int(obj_inst.id)}_{obj_inst.class_.replace(' ', '_')}_{size}"
 
 
-def location_to_str_name(room_data: tuple, place_id: int) -> str:
+def location_to_str_name(room_data: Tuple, place_id: int) -> str:
     """Construct location name.
     """
     (cx, cy), room_id, floor_num = room_data
@@ -163,7 +165,7 @@ def domain_to_pddlgym_name(domain_name: str, test: bool = False) -> str:
     return f"PDDLEnv{pddlgym_name}-v0"
 
 
-def domain_name_to_config(domain_name: str) -> dict:
+def domain_name_to_config(domain_name: str) -> Dict:
     """Construct config with REQUIRED_BASE_KEYS from a domain name.
     """
     params = domain_name.lower().split("_")
@@ -201,13 +203,13 @@ def sampler_name(scene_graph_filepath: str, complexity: int, bagslots: int = Non
     return sampler_name
 
 
-def load_json(filepath: str) -> dict:
+def load_json(filepath: str) -> Dict:
     data = None
     with open(filepath, "r") as fp:
         data = json.load(fp)
     return data
 
 
-def save_json(filepath: str, data: dict) -> None:
+def save_json(filepath: str, data: Dict) -> None:
     with open(filepath, "w") as fp:
         json.dump(data, fp, indent=4, sort_keys=True)

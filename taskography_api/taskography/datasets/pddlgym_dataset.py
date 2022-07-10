@@ -1,4 +1,4 @@
-from typing import Tuple, List, Dict
+from typing import Tuple, List, Dict, Type
 
 import os
 import os.path as osp
@@ -63,7 +63,7 @@ class PDDLGymDataset:
         self.problem_filepaths = defaultdict(list)
 
     def generate(
-        self, domain_name: str, sampler_cls: ProblemSamplerBase, sampler_kwargs: Dict
+        self, domain_name: str, sampler_cls: Type[ProblemSamplerBase], sampler_kwargs: Dict
     ) -> Tuple[str, List[str]]:
         """Generate 3D scene graph symbolic planning domain. Dynamically modify PDDLGym scripts
         to register the environment.

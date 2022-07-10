@@ -1,7 +1,8 @@
+from typing import Tuple, Dict, DefaultDict
+
 import numpy as np
 import networkx as nx
 from collections import defaultdict
-from __future__ import annotations
 
 from .scenegraph import *
 
@@ -177,7 +178,7 @@ def scenegraph_mst(building: Building) -> None:
         building.room[room_ids[room_b_idx]].connected_rooms.add(room_ids[room_a_idx])
 
 
-def index_building(building: Building) -> tuple[dict, dict, defaultdict]:
+def index_building(building: Building) -> Tuple[Dict, Dict, DefaultDict]:
     """Index rooms and floors in the building.
     """
     room_ids = dict()  # dict(key=room_idx, value=room_id)
