@@ -14,14 +14,14 @@ from ..utils.constants import OFFICIAL_SPLITS
 
 
 class Taskography(gym.Env):
-
-    def __init__(self,
-                 sampler: str,
-                 sampler_kwargs: Dict,
-                 data_dir: str,
-                 split: str,
-                 episodes_per_scene: int=10,
-                 ) -> None:
+    def __init__(
+        self,
+        sampler: str,
+        sampler_kwargs: Dict,
+        data_dir: str,
+        split: str,
+        episodes_per_scene: int = 10,
+    ) -> None:
         """The Taskography gym environment class.
 
         args:
@@ -47,7 +47,7 @@ class Taskography(gym.Env):
     @property
     def observation_space(self):
         return self._env.observation_space
-    
+
     @property
     def action_space(self):
         return self._env.action_space
@@ -60,11 +60,13 @@ class Taskography(gym.Env):
         """
         sampler_cls = get_task_sampler(self._sampler)
         sampler_kwargs = self._sampler_kwargs.copy()
-        
+
         # Scene graph models
         split = OFFICIAL_SPLITS[self._split]
-        scene_graph_filepaths = [os.path.join(self._data_dir, split, m) \
-            for m in os.listdir(os.path.join(self._data_dir, split))]
+        scene_graph_filepaths = [
+            os.path.join(self._data_dir, split, m)
+            for m in os.listdir(os.path.join(self._data_dir, split))
+        ]
 
         problem_samplers = []
         for scene_graph_filepath in scene_graph_filepaths:
@@ -85,7 +87,7 @@ class Taskography(gym.Env):
             self._problem_dir = tempfile.mkdtemp()
 
             # Sample scene at uniform random
-            scene_idx = random.randint(0, len(self._problem_samplers)-1)
+            scene_idx = random.randint(0, len(self._problem_samplers) - 1)
             sampler = self._problem_samplers[scene_idx]
 
             # Sampler tasks at random
@@ -96,19 +98,17 @@ class Taskography(gym.Env):
                 domain_file=self._domain_filepath,
                 problem_dir=self._problem_dir,
                 operators_as_actions=True,
-                dynamic_action_space=True
+                dynamic_action_space=True,
             )
-            
+
         assert isinstance(self._env, PDDLEnv)
         self._env.fix_problem_index(self._episode_count)
         state, _ = self._env.reset()
-        
+
         self._episode_count += 1
         return state
 
-    def step(self, 
-             action: Literal  
-             ) -> Tuple[Set[Literal], float, bool, Dict]:
+    def step(self, action: Literal) -> Tuple[Set[Literal], float, bool, Dict]:
         """Take symbolic environment step.
 
         args:

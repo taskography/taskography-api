@@ -5,30 +5,29 @@ import pprint
 import copy
 import flatten_dict
 
-from .constants import (DOMAIN_ALIAS, DOMAIN_BAGSLOTS)
-from .utils import (REQUIRED_BASE_KEYS, config_to_domain_name, domain_to_pddlgym_name)
+from .constants import DOMAIN_ALIAS, DOMAIN_BAGSLOTS
+from .utils import REQUIRED_BASE_KEYS, config_to_domain_name, domain_to_pddlgym_name
 
 
 class Config(object):
-
     def __init__(self):
         self.parsed = False
         self.config = dict()
-        
+
     def update(self, d):
         self.config.update(d)
-    
+
     def save(self, path):
         if os.path.isdir(path):
             path = os.path.join(path, "config.yaml")
-        with open(path, 'w') as f:
+        with open(path, "w") as f:
             yaml.dump(self.config, f)
 
     @classmethod
     def load(cls, path):
         if os.path.isdir(path):
             path = os.path.join(path, "config.yaml")
-        with open(path, 'r') as f:
+        with open(path, "r") as f:
             data = yaml.load(f, Loader=yaml.Loader)
         config = cls()
         config.update(data)
@@ -39,13 +38,20 @@ class Config(object):
         if isinstance(value, dict) and all([isinstance(k, str) for k in value.keys()]):
             # We have another nested configuration dictionary
             for k in value.keys():
-                Config._flatten_helper(flattened_config, value[k], prefix + separator + k, separator=separator)
+                Config._flatten_helper(
+                    flattened_config,
+                    value[k],
+                    prefix + separator + k,
+                    separator=separator,
+                )
         else:
             # We do not have a config file, just return the regular value.
-            flattened_config[prefix[1:]] = value # Note that we remove the first prefix because it has a leading '.'
-    
+            flattened_config[
+                prefix[1:]
+            ] = value  # Note that we remove the first prefix because it has a leading '.'
+
     def flatten(self, separator="."):
-        '''Returns a flattened version of the config where '.' separates nested values'''
+        """Returns a flattened version of the config where '.' separates nested values"""
         flattened_config = {}
         Config._flatten_helper(flattened_config, self.config, "", separator=separator)
         return flattened_config
@@ -69,19 +75,18 @@ class Config(object):
 
 
 class PDDLGymDatasetConfig(Config):
-
     def __init__(self):
         super().__init__()
         # Sampler Args
-        self.config['sampler'] = None
-        self.config['sampler_kwargs'] = {}
+        self.config["sampler"] = None
+        self.config["sampler_kwargs"] = {}
 
         # Dataset Args
-        self.config['dataset'] = None
-        self.config['dataset_kwargs'] = {}
+        self.config["dataset"] = None
+        self.config["dataset_kwargs"] = {}
 
         # Seed
-        self.config['seed'] = None
+        self.config["seed"] = None
 
     @classmethod
     def load(cls, path):
@@ -91,28 +96,35 @@ class PDDLGymDatasetConfig(Config):
         return config
 
     def save(self, dir="datasets/configs"):
-        if not osp.exists(dir): os.makedirs(dir)
+        if not osp.exists(dir):
+            os.makedirs(dir)
         super().save(osp.join(dir, self.domain_name + ".yaml"))
-        
+
     @property
     def domain_name_kwargs(self):
         """Required kwargs for generating domain name string.
         """
         flat_config = flatten_dict.flatten(self.config, reducer=lambda *x: x[-1])
-        
+
         # Domain type
         domain_type = osp.splitext(osp.basename(flat_config["domain_filepath"]))[0]
-        if "taskography" in domain_type: domain_type = DOMAIN_ALIAS[domain_type]
-        
-        # Check bagslots None for Rearrangement domains        
-        bagslots = flat_config["bagslots"]        
-        assert (DOMAIN_BAGSLOTS[domain_type] and bagslots is not None) or \
-            (not DOMAIN_BAGSLOTS[domain_type] and bagslots is None), "Incorrectly specified bagslots."
-        
+        if "taskography" in domain_type:
+            domain_type = DOMAIN_ALIAS[domain_type]
+
+        # Check bagslots None for Rearrangement domains
+        bagslots = flat_config["bagslots"]
+        assert (DOMAIN_BAGSLOTS[domain_type] and bagslots is not None) or (
+            not DOMAIN_BAGSLOTS[domain_type] and bagslots is None
+        ), "Incorrectly specified bagslots."
+
         # Remaining keys
-        kwargs = {"domain_type": domain_type, "bagslots": 0 if bagslots is None else bagslots}
+        kwargs = {
+            "domain_type": domain_type,
+            "bagslots": 0 if bagslots is None else bagslots,
+        }
         for k in REQUIRED_BASE_KEYS:
-            if k in ["domain_type", "bagslots"]: continue
+            if k in ["domain_type", "bagslots"]:
+                continue
             kwargs[k] = flat_config[k]
 
         return kwargs
@@ -129,7 +141,9 @@ class PDDLGymDatasetConfig(Config):
     def expand_vars(config):
         """Recurse config dictionary and expand all environment variables.
         """
-        if isinstance(config, dict) and all([isinstance(k, str) for k in config.keys()]):
+        if isinstance(config, dict) and all(
+            [isinstance(k, str) for k in config.keys()]
+        ):
             for key, value in config.items():
                 if isinstance(value, dict):
                     PDDLGymDatasetConfig.expand_vars(value)

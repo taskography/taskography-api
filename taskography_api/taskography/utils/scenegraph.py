@@ -1,5 +1,4 @@
 class SceneGraphNode(object):
-
     def __init__(self):
         pass
 
@@ -7,7 +6,7 @@ class SceneGraphNode(object):
         if attr not in self.__dict__.keys():
             raise ValueError(f"Unknown attribute: {attr}")
         self.__dict__[attr] = value
-    
+
     def get_attribute(self, attr):
         if attr not in self.__dict__.keys():
             raise ValueError(f"Unknown attribute: {attr}")
@@ -15,7 +14,6 @@ class SceneGraphNode(object):
 
 
 class Building(SceneGraphNode):
-
     def __init__(self):
         # 2D floor area (sq. meters)
         self.floor_area = None
@@ -54,14 +52,13 @@ class Building(SceneGraphNode):
         self.object = {}
 
     def print_attributes(self):
-        print(f'--- Building ID: {self.id} ---')
+        print(f"--- Building ID: {self.id} ---")
         for key in self.__dict__.keys():
-            if key not in ['room', 'camera', 'object', 'voxel_centers']:
+            if key not in ["room", "camera", "object", "voxel_centers"]:
                 print(f"Key: {key} | Value: {self.get_attribute(key)}")
 
 
 class Room(SceneGraphNode):
-
     def __init__(self):
         # 2D floor area (in square meters)
         self.floor_area = None
@@ -87,13 +84,12 @@ class Room(SceneGraphNode):
         self.connected_rooms = set()
 
     def print_attributes(self):
-        print(f'--- Room ID: {self.id} ---')
+        print(f"--- Room ID: {self.id} ---")
         for key in self.__dict__.keys():
             print(f"Key: {key} | Value: {self.get_attribute(key)}")
 
 
 class SceneObject(SceneGraphNode):
-
     def __init__(self):
         # List of possible actions
         self.action_affordance = None
@@ -125,13 +121,12 @@ class SceneObject(SceneGraphNode):
         self.parent_room = None
 
     def print_attributes(self):
-        print(f'--- Object ID: {self.id} ---')
+        print(f"--- Object ID: {self.id} ---")
         for key in self.__dict__.keys():
             print(f"Key: {key} | Value: {self.get_attribute(key)}")
 
 
 class Camera(SceneGraphNode):
-
     def __init__(self):
         # Name of the camera
         self.name = None

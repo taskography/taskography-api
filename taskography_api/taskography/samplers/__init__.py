@@ -11,7 +11,7 @@ _SAMPLERS = {
     "rearrangement": TaskSamplerV2,
     "courier": TaskSamplerV3,
     "lifted_rearrangement": TaskSamplerV4,
-    "lifted_courier": TaskSamplerV5
+    "lifted_courier": TaskSamplerV5,
 }
 
 
