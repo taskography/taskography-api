@@ -24,7 +24,9 @@ def load_from_registry(config):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--config", "-c", type=str, required=True, help="Path to environment config")
+    parser.add_argument(
+        "--config", "-c", type=str, required=True, help="Path to environment config"
+    )
     args = parser.parse_args()
 
     with open(args.config, "r") as fh:

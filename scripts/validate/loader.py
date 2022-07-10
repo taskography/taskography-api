@@ -9,8 +9,13 @@ def load_scene_graphs(args):
     medium/automated_graph splits. No assertions should be triggered.
     """
     data_path = os.path.expandvars(args.data_path)
-    filedirs = [os.path.join(data_path, "tiny/verified_graph"), os.path.join(data_path, "medium/automated_graph")]
-    filepaths = [os.path.join(fd, filename) for fd in filedirs for filename in os.listdir(fd)]
+    filedirs = [
+        os.path.join(data_path, "tiny/verified_graph"),
+        os.path.join(data_path, "medium/automated_graph"),
+    ]
+    filepaths = [
+        os.path.join(fd, filename) for fd in filedirs for filename in os.listdir(fd)
+    ]
     for fp in filepaths:
         try:
             print(f"Loading 3D scene graph: {fp}")
@@ -21,7 +26,9 @@ def load_scene_graphs(args):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--data-path", "-d", type=str, required=True, help="Path to 3DSG dataset root")
+    parser.add_argument(
+        "--data-path", "-d", type=str, required=True, help="Path to 3DSG dataset root"
+    )
     args = parser.parse_args()
 
     load_scene_graphs(args)
