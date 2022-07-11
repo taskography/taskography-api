@@ -1,4 +1,4 @@
-from typing import Dict, Tuple
+from typing import Dict, Tuple, Union
 
 import sys
 import numpy as np
@@ -6,7 +6,7 @@ import numpy as np
 from pddlgym_planners.adl2strips import ADL2Strips
 
 
-def compute_ground_problem_size(domain_filepath: str, problem_filepath: str) -> Dict:
+def compute_ground_problem_size(domain_filepath: str, problem_filepath: str) -> Dict[str, int]:
     """Compute number of ground action and predicates in a PDDL domain.
     """
     with ADL2Strips(domain_filepath, problem_filepath) as (dfp, _):
@@ -46,7 +46,7 @@ def get_sastask_from_pddl(domain_filepath: str, problem_filepath: str) -> Tuple:
 
 def estimate_branches(
     sas_task, pddl_task, num_rollouts: int = 10, horizon: int = 100
-) -> Dict:
+) -> Dict[str, Union[int, float]]:
     """Estimate the mean, minimum and maximum branch factor of the PDDL domain
     with Monte-Carlo rollouts.
     """
@@ -97,7 +97,7 @@ def estimate_branches(
     )
 
 
-def count_operators(sas_task) -> Dict:
+def count_operators(sas_task) -> Dict[str, int]:
     """Return the number of SAS operators and variables.
     """
     return dict(
