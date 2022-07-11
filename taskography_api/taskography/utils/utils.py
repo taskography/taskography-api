@@ -35,43 +35,36 @@ _KEY_MAP_INV = {v: k for k, v in _KEY_MAP.items()}
 
 
 def room_to_str_name(room_inst: Room) -> str:
-    """Construct room name.
-    """
+    """Construct room name."""
     return f"room{int(room_inst.id)}_{room_inst.scene_category.replace(' ', '_')}"
 
 
 def place_to_str_name(
     place_id: int, inst: SceneGraphNode, is_object: bool = False, is_room: bool = False
 ) -> str:
-    """Construct place name.
-    """
+    """Construct place name."""
     assert not (is_object and is_room)
     if is_room:
-        return f"place{int(place_id)}_door_room{int(inst.id)}_{inst.scene_category.replace(' ', '_')}"
-    elif is_object:
         return (
-            f"place{int(place_id)}_item{int(inst.id)}_{inst.class_.replace(' ', '_')}"
+            f"place{int(place_id)}_door_room{int(inst.id)}_{inst.scene_category.replace(' ', '_')}"
         )
-    return (
-        f"place{int(place_id)}_receptacle{int(inst.id)}_{inst.class_.replace(' ', '_')}"
-    )
+    elif is_object:
+        return f"place{int(place_id)}_item{int(inst.id)}_{inst.class_.replace(' ', '_')}"
+    return f"place{int(place_id)}_receptacle{int(inst.id)}_{inst.class_.replace(' ', '_')}"
 
 
 def receptacle_to_str_name(rec_inst: SceneObject) -> str:
-    """Construct receptacle name.
-    """
+    """Construct receptacle name."""
     return f"receptacle{int(rec_inst.id)}_{rec_inst.class_.replace(' ', '_')}"
 
 
 def object_to_str_name(obj_inst: SceneObject, size: int) -> str:
-    """Construct object name.
-    """
+    """Construct object name."""
     return f"item{int(obj_inst.id)}_{obj_inst.class_.replace(' ', '_')}_{size}"
 
 
 def location_to_str_name(room_data: Tuple, place_id: int) -> str:
-    """Construct location name.
-    """
+    """Construct location name."""
     (cx, cy), room_id, floor_num = room_data
     cx = f"neg{-cx}" if cx < 0 else f"pos{cx}"
     cy = f"neg{-cy}" if cy < 0 else f"pos{cy}"
@@ -81,7 +74,7 @@ def location_to_str_name(room_data: Tuple, place_id: int) -> str:
 def write_domain_file(
     pddlgym_domain: PDDLDomainParser, domain_filepath: str, domain_name: str = None
 ) -> None:
-    """Write out PDDL domain file while scanning for and removing the 
+    """Write out PDDL domain file while scanning for and removing the
     untyped equality (= ?v0 ?v1) written by PDDLGymDomainParser.
 
     args:
@@ -102,7 +95,7 @@ def write_domain_file(
 
 def register_pddlgym_domain(problem_dir: str, domain_name: str) -> None:
     """Add new domain to the list of environments to be registered by PDDLGym.
-    
+
     args:
         problem_dir: path to pddlgym/pddlgym/pddl directory
         domain_name: name of the domain
@@ -139,8 +132,7 @@ def register_pddlgym_domain(problem_dir: str, domain_name: str) -> None:
 
 
 def config_to_domain_name(**kwargs) -> str:
-    """Return conventional domain name from REQUIRED_BASE_KEYS in the config. 
-    """
+    """Return conventional domain name from REQUIRED_BASE_KEYS in the config."""
     # Ensure base keys provided
     for k in REQUIRED_BASE_KEYS:
         assert k in kwargs, f"Missing keyword argument {k} required to name the domain."
@@ -157,8 +149,7 @@ def config_to_domain_name(**kwargs) -> str:
 
 
 def domain_to_pddlgym_name(domain_name: str, test: bool = False) -> str:
-    """Return domain name as registered by PDDLGym.
-    """
+    """Return domain name as registered by PDDLGym."""
     pddlgym_name = domain_name.capitalize()
     if test:
         pddlgym_name += "Test"
@@ -166,8 +157,7 @@ def domain_to_pddlgym_name(domain_name: str, test: bool = False) -> str:
 
 
 def domain_name_to_config(domain_name: str) -> Dict:
-    """Construct config with REQUIRED_BASE_KEYS from a domain name.
-    """
+    """Construct config with REQUIRED_BASE_KEYS from a domain name."""
     params = domain_name.lower().split("_")
     split_idx = params.index("split")
 
@@ -189,14 +179,12 @@ def domain_name_to_config(domain_name: str) -> Dict:
 
 
 def scene_graph_name(scene_graph_filepath: str) -> str:
-    """Retrieve scene graph model.
-    """
+    """Retrieve scene graph model."""
     return scene_graph_filepath.split(".")[0].split("_")[-1].lower()
 
 
 def sampler_name(scene_graph_filepath: str, complexity: int, bagslots: int = None):
-    """Construct sampler name.
-    """
+    """Construct sampler name."""
     sampler_name = scene_graph_name(scene_graph_filepath)
     bagslots = 0 if bagslots is None else bagslots
     sampler_name += f"_n{bagslots}_k{complexity}"

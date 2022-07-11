@@ -102,8 +102,7 @@ class PDDLGymDatasetConfig(Config):
 
     @property
     def domain_name_kwargs(self):
-        """Required kwargs for generating domain name string.
-        """
+        """Required kwargs for generating domain name string."""
         flat_config = flatten_dict.flatten(self.config, reducer=lambda *x: x[-1])
 
         # Domain type
@@ -139,11 +138,8 @@ class PDDLGymDatasetConfig(Config):
 
     @staticmethod
     def expand_vars(config):
-        """Recurse config dictionary and expand all environment variables.
-        """
-        if isinstance(config, dict) and all(
-            [isinstance(k, str) for k in config.keys()]
-        ):
+        """Recurse config dictionary and expand all environment variables."""
+        if isinstance(config, dict) and all([isinstance(k, str) for k in config.keys()]):
             for key, value in config.items():
                 if isinstance(value, dict):
                     PDDLGymDatasetConfig.expand_vars(value)

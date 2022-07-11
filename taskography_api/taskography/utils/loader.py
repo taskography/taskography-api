@@ -12,7 +12,7 @@ def loader(path: str) -> Building:
 
     args:
         path: path to an iGibson scene graph pickle file.
-    
+
     returns:
         building: 3D scene graph building
     """
@@ -52,18 +52,12 @@ def loader(path: str) -> Building:
         if object_id == 0:
             continue
         building.object[object_id] = SceneObject()
-        object_faces = np.where(
-            data["building"]["object_inst_segmentation"] == object_id
-        )[0]
+        object_faces = np.where(data["building"]["object_inst_segmentation"] == object_id)[0]
         building.object[object_id].set_attribute("inst_segmentation", object_faces)
-        object_voxels = np.where(
-            data["building"]["object_voxel_occupancy"] == object_id
-        )[0]
+        object_voxels = np.where(data["building"]["object_voxel_occupancy"] == object_id)[0]
         building.object[object_id].set_attribute("voxel_occupancy", object_voxels)
         for key in data["object"][object_id].keys():
-            building.object[object_id].set_attribute(
-                key, data["object"][object_id][key]
-            )
+            building.object[object_id].set_attribute(key, data["object"][object_id][key])
 
     # Set camera attributes
     for cam_id in data["camera"].keys():
@@ -79,11 +73,11 @@ def loader(path: str) -> Building:
 
 def scenegraph_mst(building: Building) -> None:
     """Apply Kruskal's algorithm to find the minimum spanning tree of room connectivities.
-    Edge weights are determined by the distance between rooms' centroids. Heuristics are 
+    Edge weights are determined by the distance between rooms' centroids. Heuristics are
     used to determine floor adjacency such that only a single connection exists between floors.
-    
+
     args:
-        building: a loaded 3D scene graph building       
+        building: a loaded 3D scene graph building
     """
     room_ids, room_loc, floor_rooms = index_building(building)
 
@@ -121,13 +115,11 @@ def scenegraph_mst(building: Building) -> None:
 
                 # floor-floor heuristic: mean of min connection between rooms in both floors
                 n, m = len(floor_a_rooms), len(floor_b_rooms)
-                floor_a_rooms_repeat = np.repeat(
-                    np.array(floor_a_rooms, dtype=np.int), m
-                )
+                floor_a_rooms_repeat = np.repeat(np.array(floor_a_rooms, dtype=np.int), m)
                 floor_b_rooms_tile = np.tile(np.array(floor_b_rooms, dtype=np.int), n)
-                room_a_to_b_dist = room_dist_mat[
-                    floor_a_rooms_repeat, floor_b_rooms_tile
-                ].reshape(n, m)
+                room_a_to_b_dist = room_dist_mat[floor_a_rooms_repeat, floor_b_rooms_tile].reshape(
+                    n, m
+                )
                 floor_dist_heuristic = np.amin(room_a_to_b_dist, axis=0).mean()
                 floor_graph.add_edge(floor_a, floor_b, weight=floor_dist_heuristic)
 
@@ -158,18 +150,12 @@ def scenegraph_mst(building: Building) -> None:
         room_idx_repeat = np.repeat(np.array(list(rooms), dtype=np.int), len(rooms))
         room_idx_tile = np.tile(np.array(list(rooms), dtype=np.int), len(rooms))
         room_dist = room_dist_mat[room_idx_repeat, room_idx_tile]
-        room_graph.add_weighted_edges_from(
-            list(zip(room_idx_repeat, room_idx_tile, room_dist))
-        )
+        room_graph.add_weighted_edges_from(list(zip(room_idx_repeat, room_idx_tile, room_dist)))
 
     # add room adjacency list to scene graph
     room_mst = nx.minimum_spanning_tree(room_graph)
-    assert (
-        nx.number_connected_components(room_mst) == 1
-    ), "Minimum spanning tree is not complete"
-    assert (
-        building.num_rooms == room_mst.order()
-    ), "Missing rooms in computed minimum spanning tree"
+    assert nx.number_connected_components(room_mst) == 1, "Minimum spanning tree is not complete"
+    assert building.num_rooms == room_mst.order(), "Missing rooms in computed minimum spanning tree"
     assert (
         building.num_rooms - 1 == room_mst.size()
     ), "Missing edges in the computed minimum spanning tree"
@@ -179,8 +165,7 @@ def scenegraph_mst(building: Building) -> None:
 
 
 def index_building(building: Building) -> Tuple[Dict, Dict, DefaultDict]:
-    """Index rooms and floors in the building.
-    """
+    """Index rooms and floors in the building."""
     room_ids = dict()  # dict(key=room_idx, value=room_id)
     room_loc = dict()  # dict(key=room_idx, value=room_location)
     room_floor = dict()  # dict(key=room_idx, value=floor_idx)

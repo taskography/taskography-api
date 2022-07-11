@@ -6,10 +6,8 @@ from .taskographyv1 import TaskSamplerV1
 
 
 class TaskSamplerV2(TaskSamplerV1):
-    def __init__(
-        self, domain_filepath, scene_graph_filepath, complexity=1, bagslots=None
-    ):
-        """PDDL problem sampler for the Rearrangement(k) task. 
+    def __init__(self, domain_filepath, scene_graph_filepath, complexity=1, bagslots=None):
+        """PDDL problem sampler for the Rearrangement(k) task.
         Corresponding domain specification: domains/taskographyv2.pddl.
         """
         assert bagslots is None, "Rearrangement(k) domains does not use bagslots."
@@ -60,9 +58,7 @@ class TaskSamplerV2(TaskSamplerV1):
             place_name = self.place_names[place_id]
             location_name = self.location_names["places"][place_id]
             self.predicates.add(place_location(emap[location_name], emap[place_name]))
-            self.predicates.add(
-                location_in_place(emap[location_name], emap[place_name])
-            )
+            self.predicates.add(location_in_place(emap[location_name], emap[place_name]))
             self.predicates.add(room_place(emap[place_name], emap[room_name]))
             self.predicates.add(place_in_room(emap[place_name], emap[room_name]))
             for place_id in self.room_to_place_map[room_id]["places"]:
@@ -70,23 +66,17 @@ class TaskSamplerV2(TaskSamplerV1):
                 self.predicates.add(place_in_room(emap[place_name], emap[room_name]))
             for connected_room_id in self.sg.room[room_id].connected_rooms:
                 connected_room_name = self.room_names[connected_room_id]
-                self.predicates.add(
-                    rooms_connected(emap[room_name], emap[connected_room_name])
-                )
+                self.predicates.add(rooms_connected(emap[room_name], emap[connected_room_name]))
 
         # locationInPlace, placeLocation
         for place_id in self.place_to_entity_map:
             place_name = self.place_names[place_id]
             location_name = self.location_names["places"][place_id]
             self.predicates.add(place_location(emap[location_name], emap[place_name]))
-            self.predicates.add(
-                location_in_place(emap[location_name], emap[place_name])
-            )
+            self.predicates.add(location_in_place(emap[location_name], emap[place_name]))
             for e_id in self.place_to_entity_map[place_id]["objects"]:
                 location_name = self.location_names[e_id]
-                self.predicates.add(
-                    location_in_place(emap[location_name], emap[place_name])
-                )
+                self.predicates.add(location_in_place(emap[location_name], emap[place_name]))
 
     def sample_task_repr(self):
         valid = False
@@ -127,22 +117,16 @@ class TaskSamplerV2(TaskSamplerV1):
 
             # init | agent: inRoom, inPlace, atLocation
             predicates.add(in_room(emap["robot"], emap[self.room_names[task["a_rid"]]]))
+            predicates.add(in_place(emap["robot"], emap[self.place_names[task["a_pid"]]]))
             predicates.add(
-                in_place(emap["robot"], emap[self.place_names[task["a_pid"]]])
-            )
-            predicates.add(
-                at_location(
-                    emap["robot"], emap[self.location_names["places"][task["a_pid"]]]
-                )
+                at_location(emap["robot"], emap[self.location_names["places"][task["a_pid"]]])
             )
 
             # goal | pick object, place receptacle: inReceptacle
             goals = []
             for i_id, r_id in zip(task["i_ids"], task["r_ids"]):
                 goals.append(
-                    in_receptacle(
-                        emap[self.object_names[i_id]], emap[self.receptacle_names[r_id]]
-                    )
+                    in_receptacle(emap[self.object_names[i_id]], emap[self.receptacle_names[r_id]])
                 )
             goals = LiteralConjunction(goals)
 

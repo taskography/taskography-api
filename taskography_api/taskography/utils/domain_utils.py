@@ -7,8 +7,7 @@ from pddlgym_planners.adl2strips import ADL2Strips
 
 
 def compute_ground_problem_size(domain_filepath: str, problem_filepath: str) -> Dict[str, int]:
-    """Compute number of ground action and predicates in a PDDL domain.
-    """
+    """Compute number of ground action and predicates in a PDDL domain."""
     with ADL2Strips(domain_filepath, problem_filepath) as (dfp, _):
         with open(dfp, "r") as f:
             grounded_dom = f.read()
@@ -26,20 +25,15 @@ def compute_ground_problem_size(domain_filepath: str, problem_filepath: str) -> 
 
 
 def get_sastask_from_pddl(domain_filepath: str, problem_filepath: str) -> Tuple:
-    """Return SAS task from PDDL.
-    """
+    """Return SAS task from PDDL."""
     # Temporarily add translate to path
     sys.path.append("third_party/pddlgym_planners/FD/src/translate/")
     import normalize
     import pddl_parser
     import translate
 
-    pddl_task = pddl_parser.open(
-        domain_filename=domain_filepath, task_filename=problem_filepath
-    )
-    sas_task = translate.pddl_to_sas(
-        pddl_task, max_num_actions=float("inf"), pg_generator=None
-    )
+    pddl_task = pddl_parser.open(domain_filename=domain_filepath, task_filename=problem_filepath)
+    sas_task = translate.pddl_to_sas(pddl_task, max_num_actions=float("inf"), pg_generator=None)
     sys.path.pop(-1)
     return sas_task, pddl_task
 
@@ -55,9 +49,7 @@ def estimate_branches(
     for var_index, value_names in enumerate(sas_task.variables.value_names):
         name = "atlocation"
         if any(f" {name}" in v for v in value_names):
-            assert (
-                index is None
-            ), f"Unexpected: More than one sas variable for pddl {name}"
+            assert index is None, f"Unexpected: More than one sas variable for pddl {name}"
             index = var_index
     operators_by_location = {}
     for operator in sas_task.operators:
@@ -74,9 +66,9 @@ def estimate_branches(
         state = sas_task.init.values.copy()
         for s in range(horizon):
             all_applicable = []
-            for operator in operators_by_location.get(
-                state[index], []
-            ) + operators_by_location.get("None", []):
+            for operator in operators_by_location.get(state[index], []) + operators_by_location.get(
+                "None", []
+            ):
                 applicable = True
                 for (var, assignment) in operator.get_applicability_conditions():
                     if state[var] != assignment:
@@ -98,8 +90,7 @@ def estimate_branches(
 
 
 def count_operators(sas_task) -> Dict[str, int]:
-    """Return the number of SAS operators and variables.
-    """
+    """Return the number of SAS operators and variables."""
     return dict(
         num_sas_operators=len(sas_task.operators),
         num_sas_variables=len(sas_task.variables.value_names),

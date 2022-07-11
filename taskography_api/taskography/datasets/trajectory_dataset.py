@@ -27,8 +27,7 @@ class TrajectoryGymDataset:
         self.test = test
 
     def generate_from_env(self) -> None:
-        """Generate state-action trajectories atop PDDLGym environment.
-        """
+        """Generate state-action trajectories atop PDDLGym environment."""
         assert self.env is not None, "PDDLGym environment name not provided"
         domain_name = self.env.strip("PDDLEnv").split("-")[0].lower()
 
@@ -70,14 +69,10 @@ class TrajectoryGymDataset:
                     for action in plan:
                         states.append(curr_state)
                         curr_state, _, _, _ = env.step(action)
-                    assert len(states) == len(
-                        plan
-                    ), "Number of states and actions are unequal"
+                    assert len(states) == len(plan), "Number of states and actions are unequal"
 
                     # Save trajectory
-                    with open(
-                        os.path.join(self.trajectory_dir, f"problem{count}.pkl"), "wb"
-                    ) as fh:
+                    with open(os.path.join(self.trajectory_dir, f"problem{count}.pkl"), "wb") as fh:
                         pickle.dump((states, plan), fh)
 
                 except PlanningTimeout:

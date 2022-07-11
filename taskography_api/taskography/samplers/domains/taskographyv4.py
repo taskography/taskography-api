@@ -8,10 +8,8 @@ from taskography_api.taskography.utils.constants import OBJECTS, RECEPTACLES
 
 
 class TaskSamplerV4(TaskSamplerV2):
-    def __init__(
-        self, domain_filepath, scene_graph_filepath, complexity=1, bagslots=None
-    ):
-        """PDDL problem sampler for the Lifted Rearrangement(k) task. 
+    def __init__(self, domain_filepath, scene_graph_filepath, complexity=1, bagslots=None):
+        """PDDL problem sampler for the Lifted Rearrangement(k) task.
         Corresponding domain specification: domains/taskographyv4.pddl.
         """
         super().__init__(
@@ -20,15 +18,11 @@ class TaskSamplerV4(TaskSamplerV2):
             complexity=complexity,
             bagslots=bagslots,
         )
-        assert (
-            bagslots is None
-        ), "Lifted Rearrangement(k) domains does not use bagslots."
+        assert bagslots is None, "Lifted Rearrangement(k) domains does not use bagslots."
         lifted_class_array = self.lifted_class_matrix.copy().reshape(-1)
         mask = lifted_class_array > 0
         self._lifted_class_indices = np.arange(len(lifted_class_array))[mask]
-        self._lifted_class_weights = (
-            lifted_class_array[mask] / lifted_class_array[mask].sum()
-        )
+        self._lifted_class_weights = lifted_class_array[mask] / lifted_class_array[mask].sum()
 
     def create_entities(self):
         super().create_entities()
@@ -66,9 +60,7 @@ class TaskSamplerV4(TaskSamplerV2):
         for r_id in self.receptacles["all"]:
             str_rec_name = self.receptacle_names[r_id]
             str_rec_class = self.sg.object[r_id].class_.replace(" ", "")
-            self.predicates.add(
-                receptacle_class(emap[str_rec_name], emap[str_rec_class])
-            )
+            self.predicates.add(receptacle_class(emap[str_rec_name], emap[str_rec_class]))
 
         # itemClass
         for o_id in self.objects["all"]:
@@ -78,9 +70,7 @@ class TaskSamplerV4(TaskSamplerV2):
 
         # classRelation
         for (str_obj_class, str_rec_class) in self.lifted_class_relations:
-            self.predicates.add(
-                class_relation(emap[str_obj_class], emap[str_rec_class])
-            )
+            self.predicates.add(class_relation(emap[str_obj_class], emap[str_rec_class]))
 
     def sample_task_repr(self):
         class_relations = np.random.choice(
@@ -89,9 +79,7 @@ class TaskSamplerV4(TaskSamplerV2):
             replace=False,
             p=self._lifted_class_weights,
         )
-        i_ids, r_ids = np.unravel_index(
-            class_relations, shape=self.lifted_class_matrix.shape
-        )
+        i_ids, r_ids = np.unravel_index(class_relations, shape=self.lifted_class_matrix.shape)
         class_relation_ids = sorted(list(zip(i_ids.tolist(), r_ids.tolist())))
 
         a_rid = random.sample(self._sorted_room_ids, k=1)[0]
@@ -119,13 +107,9 @@ class TaskSamplerV4(TaskSamplerV2):
 
             # init | agent: inRoom, inPlace, atLocation
             predicates.add(in_room(emap["robot"], emap[self.room_names[task["a_rid"]]]))
+            predicates.add(in_place(emap["robot"], emap[self.place_names[task["a_pid"]]]))
             predicates.add(
-                in_place(emap["robot"], emap[self.place_names[task["a_pid"]]])
-            )
-            predicates.add(
-                at_location(
-                    emap["robot"], emap[self.location_names["places"][task["a_pid"]]]
-                )
+                at_location(emap["robot"], emap[self.location_names["places"][task["a_pid"]]])
             )
 
             # goal | pick object, place receptacle: inReceptacle

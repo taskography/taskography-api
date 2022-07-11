@@ -5,10 +5,8 @@ from ..problem_sampler_base import ProblemSamplerBase
 
 
 class TaskSamplerV1(ProblemSamplerBase):
-    def __init__(
-        self, domain_filepath, scene_graph_filepath, complexity=1, bagslots=None
-    ):
-        """PDDL problem sampler for the non-hierarchical Rearrangement(k) task. 
+    def __init__(self, domain_filepath, scene_graph_filepath, complexity=1, bagslots=None):
+        """PDDL problem sampler for the non-hierarchical Rearrangement(k) task.
         Corresponding domain specification: domains/taskographyv1.pddl.
         """
         super().__init__(
@@ -69,26 +67,20 @@ class TaskSamplerV1(ProblemSamplerBase):
         for r_id in self.receptacles["all"]:
             str_rec_name = self.receptacle_names[r_id]
             str_rec_loc_name = self.location_names[r_id]
-            self.predicates.add(
-                receptacle_at_location(emap[str_rec_name], emap[str_rec_loc_name])
-            )
+            self.predicates.add(receptacle_at_location(emap[str_rec_name], emap[str_rec_loc_name]))
 
         # itemAtLocation
         for o_id in self.objects["all"]:
             str_obj_name = self.object_names[o_id]
             str_obj_loc_name = self.location_names[o_id]
-            self.predicates.add(
-                item_at_location(emap[str_obj_name], emap[str_obj_loc_name])
-            )
+            self.predicates.add(item_at_location(emap[str_obj_name], emap[str_obj_loc_name]))
 
         # inReceptacle, inAnyReceptacle, and receptacleOpeningType
         for r_id in self.receptacle_to_object_map:
             str_rec_name = self.receptacle_names[r_id]
             for o_id in self.receptacle_to_object_map[r_id]:
                 str_obj_name = self.object_names[o_id]
-                self.predicates.add(
-                    in_receptacle(emap[str_obj_name], emap[str_rec_name])
-                )
+                self.predicates.add(in_receptacle(emap[str_obj_name], emap[str_rec_name]))
                 self.predicates.add(in_any_receptacle(emap[str_obj_name]))
             if r_id in self.receptacles["opening_type"]:
                 self.predicates.add(receptacle_opening_type(emap[str_rec_name]))
@@ -126,17 +118,13 @@ class TaskSamplerV1(ProblemSamplerBase):
             predicates = self.predicates.copy()
 
             # init | agent: atLocation
-            predicates.add(
-                at_location(emap["robot"], emap[self.location_names[task["a_lid"]]])
-            )
+            predicates.add(at_location(emap["robot"], emap[self.location_names[task["a_lid"]]]))
 
             # goal | pick object, place receptacle: inReceptacle
             goals = []
             for i_id, r_id in zip(task["i_ids"], task["r_ids"]):
                 goals.append(
-                    in_receptacle(
-                        emap[self.object_names[i_id]], emap[self.receptacle_names[r_id]]
-                    )
+                    in_receptacle(emap[self.object_names[i_id]], emap[self.receptacle_names[r_id]])
                 )
             goals = LiteralConjunction(goals)
 

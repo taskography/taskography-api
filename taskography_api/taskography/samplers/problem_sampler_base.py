@@ -46,9 +46,7 @@ class ProblemSamplerBase(ABC, TaskSamplerBase):
             domain_filepath, expect_action_preds=False, operators_as_actions=False
         )
         try:
-            self.domain_type = domain_name_to_config(self.domain.domain_name)[
-                "domain_type"
-            ]
+            self.domain_type = domain_name_to_config(self.domain.domain_name)["domain_type"]
         except:
             self.domain_type = None
 
@@ -66,9 +64,7 @@ class ProblemSamplerBase(ABC, TaskSamplerBase):
         # Labelling attributes
         self._model_name = scene_graph_name(scene_graph_filepath)
         self._problem_prefix = self._model_name + self.domain.domain_name
-        self._sampler_name = sampler_name(
-            scene_graph_filepath, self.complexity, self.bagslots
-        )
+        self._sampler_name = sampler_name(scene_graph_filepath, self.complexity, self.bagslots)
 
     @abstractmethod
     def create_entities(self):
@@ -86,18 +82,18 @@ class ProblemSamplerBase(ABC, TaskSamplerBase):
 
     @abstractmethod
     def sample_task_repr(self) -> Dict:
-        """Randomly sample a single task and cast it into a low-memory representation. E.g., 
+        """Randomly sample a single task and cast it into a low-memory representation. E.g.,
         task_repr = {
-            "a_rid": room_*,                        # agent starting room ID      
-            "a_pid": place_*,                       # agent starting place ID     
+            "a_rid": room_*,                        # agent starting room ID
+            "a_pid": place_*,                       # agent starting place ID
             "a_lid": location_*,                    # agent starting location ID
-            "i_ids": [i_1, i_2, ..., i_complexity], # goal item IDs       
-            "r_ids": [r_1, r_2, ..., r_complexity]  # goal receptacle IDS 
+            "i_ids": [i_1, i_2, ..., i_complexity], # goal item IDs
+            "r_ids": [r_1, r_2, ..., r_complexity]  # goal receptacle IDS
         }
-        Note: 
+        Note:
             - "a_rid" and "a_pid" keys may be ommited for the taskographyv1.pddl domain
             - For lifted planning problems, "i_ids" and "r_ids" reflect item and receptacle class names.
-        
+
         returns:
             task_repr: low-memory dictionary representation of a task
         """
@@ -107,11 +103,11 @@ class ProblemSamplerBase(ABC, TaskSamplerBase):
     def sample(self, k: int = 1, repeat: bool = False) -> List[Dict]:
         """Sample a list of k possible tasks in the domain. Hash low-memory representations
         of tasks into self.tasks to ensure novel tasks are sampled when repeat=False.
-        
+
         args:
             k: batch size of tasks (default: 1)
             repeat: enable repeats for sampled tasks (default: False)
-        
+
         returns:
             tasks: list of sampled task dictionaries
         """
@@ -127,8 +123,7 @@ class ProblemSamplerBase(ABC, TaskSamplerBase):
 
     @abstractmethod
     def valid(self):
-        """Checks ensuring the scene graph is valid for the task configuration.
-        """
+        """Checks ensuring the scene graph is valid for the task configuration."""
         # All objects / receptacles must have a designated parent room
         return self.valid_scene
 
@@ -154,7 +149,7 @@ class ProblemSamplerBase(ABC, TaskSamplerBase):
             problem_dir: optional root directory to save the problem file (default: '')
             domain_name: name of the planning domain (default: None)
             fast_downward_order: whether or not the file should be written in FD-order (default: True)
-        
+
         returns:
             problem_filepath: full path to the written problem file
         """
@@ -185,11 +180,8 @@ class ProblemSamplerBase(ABC, TaskSamplerBase):
         return os.path.realpath(problem_filepath)
 
     def save(self, dir=None) -> None:
-        """Save an instance of the sampler as a pickle file.
-        """
-        dir = (
-            os.path.join("datasets/samplers", self.domain_type) if dir is None else dir
-        )
+        """Save an instance of the sampler as a pickle file."""
+        dir = os.path.join("datasets/samplers", self.domain_type) if dir is None else dir
         if not os.path.exists(dir):
             os.makedirs(dir)
         filename = os.path.join(dir, self._sampler_name + ".pkl")
@@ -199,8 +191,7 @@ class ProblemSamplerBase(ABC, TaskSamplerBase):
 
     @classmethod
     def load(cls, filepath: str) -> ProblemSamplerBase:
-        """Load a saved pickle instance of the sampler.
-        """
+        """Load a saved pickle instance of the sampler."""
         with open(filepath, "rb") as fh:
             return pickle.load(fh)
 
@@ -208,11 +199,8 @@ class ProblemSamplerBase(ABC, TaskSamplerBase):
     def load_from_name(
         cls, dir: str, scene_graph_filepath: str, complexity: int, bagslots: int = None
     ) -> ProblemSamplerBase:
-        """Load a saved pickle instance of the sampler.
-        """
-        _sampler_name = (
-            sampler_name(scene_graph_filepath, complexity, bagslots) + ".pkl"
-        )
+        """Load a saved pickle instance of the sampler."""
+        _sampler_name = sampler_name(scene_graph_filepath, complexity, bagslots) + ".pkl"
         with open(os.path.join(dir, _sampler_name), "rb") as fh:
             sampler = pickle.load(fh)
         return sampler

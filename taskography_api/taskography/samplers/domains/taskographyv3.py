@@ -3,7 +3,7 @@ from .taskographyv2 import TaskSamplerV2
 
 class TaskSamplerV3(TaskSamplerV2):
     def __init__(self, domain_filepath, scene_graph_filepath, complexity=1, bagslots=3):
-        """PDDL problem sampler for the Courier(n, k) task. 
+        """PDDL problem sampler for the Courier(n, k) task.
         Corresponding domain specification: domains/taskographyv3.pddl.
         """
         assert bagslots is not None, "Courier(n, k) domains use bagslots."
@@ -36,9 +36,7 @@ class TaskSamplerV3(TaskSamplerV2):
         # smallItem, mediumItem, largeItem
         for o_id in self.objects["all"]:
             str_obj_name = self.object_names[o_id]
-            self.predicates.add(
-                self.domain.predicates[self.object_sizes[o_id]](emap[str_obj_name])
-            )
+            self.predicates.add(self.domain.predicates[self.object_sizes[o_id]](emap[str_obj_name]))
 
     def sample_task_repr(self):
         return super().sample_task_repr()

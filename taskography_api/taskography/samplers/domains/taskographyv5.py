@@ -2,10 +2,8 @@ from .taskographyv4 import TaskSamplerV4
 
 
 class TaskSamplerV5(TaskSamplerV4):
-    def __init__(
-        self, domain_filepath, scene_graph_filepath, complexity=1, bagslots=None
-    ):
-        """PDDL problem sampler for the Lifted Courier(n, k) task. 
+    def __init__(self, domain_filepath, scene_graph_filepath, complexity=1, bagslots=None):
+        """PDDL problem sampler for the Lifted Courier(n, k) task.
         Corresponding domain specification: domains/taskographyv5.pddl.
         """
         assert bagslots is not None, "Lifted Courier(n, k) domains use bagslots."
@@ -38,9 +36,7 @@ class TaskSamplerV5(TaskSamplerV4):
         # smallItem, mediumItem, largeItem
         for o_id in self.objects["all"]:
             str_obj_name = self.object_names[o_id]
-            self.predicates.add(
-                self.domain.predicates[self.object_sizes[o_id]](emap[str_obj_name])
-            )
+            self.predicates.add(self.domain.predicates[self.object_sizes[o_id]](emap[str_obj_name]))
 
     def sample_task_repr(self):
         return super().sample_task_repr()

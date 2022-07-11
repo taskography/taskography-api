@@ -8,11 +8,11 @@ from ..utils.utils import *
 
 class TaskSamplerBase(object):
     def __init__(self, scene_graph: Building) -> None:
-        """Construct the hierarchical, symbolic and spatial relations between entities 
-        in a given scene graph, e.g., between objects, receptacles, places, rooms and 
-        their locations. This information is necessary for describing the initial state 
+        """Construct the hierarchical, symbolic and spatial relations between entities
+        in a given scene graph, e.g., between objects, receptacles, places, rooms and
+        their locations. This information is necessary for describing the initial state
         of a planning problem and to sample feasible goals grounded and lifted goals.
-        
+
         args:
             scene_graph: a 3D scene graph Building object
         """
@@ -66,8 +66,7 @@ class TaskSamplerBase(object):
         self.build_lifted_class_matrix()
 
     def get_scene_entities(self) -> None:
-        """Categorize object and receptacle IDs by their class.
-        """
+        """Categorize object and receptacle IDs by their class."""
         self.receptacles["all"] = set()
         self.receptacles["opening_type"] = set()
         self.receptacles["heating_type"] = set()
@@ -147,26 +146,15 @@ class TaskSamplerBase(object):
         self.num_rooms = len(self.room_names)
         if self.num_objects == 0 or self.num_receptacles == 0 or self.num_rooms == 0:
             self.valid_scene = False
-        if (
-            len(self.objects["heatable_type"]) > 0
-            and len(self.receptacles["heating_type"]) > 0
-        ):
+        if len(self.objects["heatable_type"]) > 0 and len(self.receptacles["heating_type"]) > 0:
             self.can_heat = True
-        if (
-            len(self.objects["coolable_type"]) > 0
-            and len(self.receptacles["cooling_type"]) > 0
-        ):
+        if len(self.objects["coolable_type"]) > 0 and len(self.receptacles["cooling_type"]) > 0:
             self.can_cool = True
-        if (
-            len(self.objects["cleanable_type"]) > 0
-            and len(self.receptacles["cleaning_type"]) > 0
-        ):
+        if len(self.objects["cleanable_type"]) > 0 and len(self.receptacles["cleaning_type"]) > 0:
             self.can_clean = True
 
         # Sort object / receptacle semantic class by their frequency
-        sorted_object_class = sorted(
-            list(self.objects["class_count"].items()), key=lambda x: x[1]
-        )
+        sorted_object_class = sorted(list(self.objects["class_count"].items()), key=lambda x: x[1])
         for idx, (class_, _) in enumerate(sorted_object_class):
             self.objects["class_index"][class_] = idx
             self.objects["class_index_inv"][idx] = class_
@@ -193,7 +181,7 @@ class TaskSamplerBase(object):
 
     def get_support_relations(self, dist_threshold: float = 2) -> None:
         """Determine object-receptacle support relations based on the dist_threshold proximity
-        metric. Standalone objects (unsupported by a receptacle) map to -1. 
+        metric. Standalone objects (unsupported by a receptacle) map to -1.
         """
         object_distances = dict()
         for o_id in self.objects["all"]:
@@ -243,9 +231,7 @@ class TaskSamplerBase(object):
 
         for r_id in self.receptacles["all"]:
             rec_inst = self.sg.object[r_id]
-            self.place_names[self.num_places] = place_to_str_name(
-                self.num_places, rec_inst
-            )
+            self.place_names[self.num_places] = place_to_str_name(self.num_places, rec_inst)
             self.place_to_entity_map[self.num_places] = {"root": r_id, "objects": set()}
             self.entity_to_place_map["receptacles"][r_id] = self.num_places
             for o_id in self.receptacle_to_object_map[r_id]:
@@ -256,8 +242,7 @@ class TaskSamplerBase(object):
             self.num_places += 1
 
     def get_locations(self) -> None:
-        """Compute locations of all objects, receptacles, and places (self.room_to_place_map[room_id]['root']).
-        """
+        """Compute locations of all objects, receptacles, and places (self.room_to_place_map[room_id]['root'])."""
         self.locations["objects"] = dict()
         self.locations["receptacles"] = dict()
         self.locations["places"] = dict()
@@ -267,9 +252,7 @@ class TaskSamplerBase(object):
 
         # Object locations
         for o_id in self.objects["all"]:
-            obj_coord = np.floor(self.sg.object[o_id].location / voxel_res).astype(int)[
-                :2
-            ]
+            obj_coord = np.floor(self.sg.object[o_id].location / voxel_res).astype(int)[:2]
             room_id = self.sg.object[o_id].parent_room
             floor_num = self.sg.room[room_id].floor_number
             room_data = (obj_coord, room_id, floor_num)
@@ -282,9 +265,7 @@ class TaskSamplerBase(object):
 
         # Receptacle locations
         for r_id in self.receptacles["all"]:
-            rec_coord = np.floor(self.sg.object[r_id].location / voxel_res).astype(int)[
-                :2
-            ]
+            rec_coord = np.floor(self.sg.object[r_id].location / voxel_res).astype(int)[:2]
             room_id = self.sg.object[r_id].parent_room
             floor_num = self.sg.room[room_id].floor_number
             room_data = (rec_coord, room_id, floor_num)
@@ -297,9 +278,7 @@ class TaskSamplerBase(object):
 
         # Place locations (room doors)
         for room_id in self.room_to_place_map:
-            room_coord = np.floor(self.sg.room[room_id].location / voxel_res).astype(
-                int
-            )[:2]
+            room_coord = np.floor(self.sg.room[room_id].location / voxel_res).astype(int)[:2]
             floor_num = self.sg.room[room_id].floor_number
             room_data = (room_coord, room_id, floor_num)
             place_id = self.room_to_place_map[room_id]["root"]
@@ -312,14 +291,11 @@ class TaskSamplerBase(object):
         for place_id in self.place_to_entity_map:
             e_id = self.place_to_entity_map[place_id]["root"]
             self.location_names["places"][place_id] = self.location_names[e_id]
-            e_type = (
-                "receptacles" if e_id not in self.unsupported_objects else "objects"
-            )
+            e_type = "receptacles" if e_id not in self.unsupported_objects else "objects"
             self.locations["places"][place_id] = self.locations[e_type][e_id]
 
     def build_lifted_class_matrix(self) -> None:
-        """Build a matrix scoring the combined object-receptacle lifted problem difficulty.
-        """
+        """Build a matrix scoring the combined object-receptacle lifted problem difficulty."""
         self.lifted_class_matrix = np.zeros(
             (len(self.objects["class_count"]), len(self.receptacles["class_count"]))
         )

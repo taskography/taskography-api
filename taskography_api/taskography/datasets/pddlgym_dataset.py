@@ -34,7 +34,7 @@ class PDDLGymDataset:
             data_dir: path to root directory of 3D scene graph data
             split: Gibson dataset split
             problem_dir: path to save sampled problem files
-            train_scenes: number of scenes to use for training problems        
+            train_scenes: number of scenes to use for training problems
             samples_per_train_scene: unique samples per train scene
             samples_per_test_scene: unique samples for the remaining test scenes
             save_samplers: save the scene-specific problem samplers (default: False)
@@ -63,7 +63,10 @@ class PDDLGymDataset:
         self.problem_filepaths = defaultdict(list)
 
     def generate(
-        self, domain_name: str, sampler_cls: Type[ProblemSamplerBase], sampler_kwargs: Dict
+        self,
+        domain_name: str,
+        sampler_cls: Type[ProblemSamplerBase],
+        sampler_kwargs: Dict,
     ) -> Tuple[str, List[str]]:
         """Generate 3D scene graph symbolic planning domain. Dynamically modify PDDLGym scripts
         to register the environment.
@@ -72,16 +75,14 @@ class PDDLGymDataset:
             domain_name: unique name of the environment
             sampler_cls: task sampler subclassing ProblemSamplerBase
             sampler_kwargs: task sampler kwargs
-        
+
         returns:
             domain_filepath: path to written PDDL domain file
             problem_filepaths: paths to written PDDL problem files
         """
         # Convert domain name
         self.domain_filepath = osp.join(self.problem_dir, domain_name + ".pddl")
-        assert not osp.exists(
-            self.domain_filepath
-        ), f"Dataset {domain_name} already exists"
+        assert not osp.exists(self.domain_filepath), f"Dataset {domain_name} already exists"
         if self.sampler_dir is None:
             self.sampler_dir = osp.join(
                 "datasets/samplers", domain_name_to_config(domain_name)["domain_type"]
@@ -100,8 +101,7 @@ class PDDLGymDataset:
         # Scene graph models
         split = OFFICIAL_SPLITS[self.split]
         scene_graph_filepaths = [
-            osp.join(self.data_dir, split, m)
-            for m in os.listdir(osp.join(self.data_dir, split))
+            osp.join(self.data_dir, split, m) for m in os.listdir(osp.join(self.data_dir, split))
         ]
         random.shuffle(scene_graph_filepaths)
 
