@@ -115,8 +115,8 @@ def scenegraph_mst(building: Building) -> None:
 
                 # floor-floor heuristic: mean of min connection between rooms in both floors
                 n, m = len(floor_a_rooms), len(floor_b_rooms)
-                floor_a_rooms_repeat = np.repeat(np.array(floor_a_rooms, dtype=np.int), m)
-                floor_b_rooms_tile = np.tile(np.array(floor_b_rooms, dtype=np.int), n)
+                floor_a_rooms_repeat = np.repeat(np.array(floor_a_rooms, dtype=int), m)
+                floor_b_rooms_tile = np.tile(np.array(floor_b_rooms, dtype=int), n)
                 room_a_to_b_dist = room_dist_mat[floor_a_rooms_repeat, floor_b_rooms_tile].reshape(
                     n, m
                 )
@@ -147,8 +147,8 @@ def scenegraph_mst(building: Building) -> None:
 
     # connect all rooms in each floor
     for _, rooms in floor_rooms.items():
-        room_idx_repeat = np.repeat(np.array(list(rooms), dtype=np.int), len(rooms))
-        room_idx_tile = np.tile(np.array(list(rooms), dtype=np.int), len(rooms))
+        room_idx_repeat = np.repeat(np.array(list(rooms), dtype=int), len(rooms))
+        room_idx_tile = np.tile(np.array(list(rooms), dtype=int), len(rooms))
         room_dist = room_dist_mat[room_idx_repeat, room_idx_tile]
         room_graph.add_weighted_edges_from(list(zip(room_idx_repeat, room_idx_tile, room_dist)))
 
