@@ -14,4 +14,4 @@ pddl_domain = 'taskographyv2tiny1'
 
 for planner in planners:
     print('running planner: ', planner)
-    os.system('python scripts/benchmark/plan.py --domain-name {} --planner {} --expid {}'.format(pddl_domain, planner, planner))
+    os.system('python scripts/benchmark/plan.py --domain-name {} --planner {} --expid {}_{}'.format(pddl_domain, planner, pddl_domain, planner))
