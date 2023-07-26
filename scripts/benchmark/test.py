@@ -1,14 +1,8 @@
 import os
-# from ...third_party.pddlgym_planners.pddlgym_planners import _SATISFICING, _OPTIMAL
 from third_party.pddlgym_planners.pddlgym_planners import _SATISFICING, _OPTIMAL
 
-# print('_SATISFICING: ',_SATISFICING)
-# print('_OPTIMAL: ',_OPTIMAL)
-# print('_SATISFICING.keys(): ',list(_SATISFICING.keys()))
-# print('_OPTIMAL.keys(): ',list(_OPTIMAL.keys()))
-
 planners = list(_SATISFICING.keys()) + list(_OPTIMAL.keys())
-print('planners: ', planners)
+print('planners: ', planners) # ['FF', 'FF-X', 'FD-lama-first', 'Cerberus-seq-sat', 'Cerberus-seq-agl', 'DecStar-agl-decoupled', 'lapkt-bfws', 'FD-seq-opt-lmcut', 'Delfi', 'DecStar-opt-decoupled']
 
 pddl_domain = 'taskographyv2tiny1'
 
