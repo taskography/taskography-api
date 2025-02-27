@@ -1,5 +1,5 @@
-from typing import List, Dict, Set, ClassVar
 from __future__ import annotations
+from typing import List, Dict, Set, ClassVar
 
 import os
 import json
